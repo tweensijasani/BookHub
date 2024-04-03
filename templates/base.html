@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>library management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="justify-content-center ">
+        {% include 'navbar.html' %}
+            
+        {% include 'search_book.html' %}
+        </br>
+        {% if searchedbook %}
+        <div class="container">
+            <table class='table table-bordered table-condensed table-hover' style="margin-left:auto ;text-align:left;">
+                <thead class="table-light " style="margin-left:auto ;">
+                    <tr>
+                        <th scope="col">ISBN10</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Authors</th>
+                        <th scope="col">Available</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {%for book in SearchedBookListobj %}
+                       <tr class="clickable " onclick="window.location='{% url 'book-loan' %}?isbn={{book.isbn10}}'"> 
+                            <td>{{book.isbn10}}</td>
+                            <td>{{book.bookTitles}}</td>
+                            <td>{{book.authors}}</td>
+                            {% if book.Available == 1 %}
+                                <td>YES</td>
+                            {% else %}
+                                <td>NO</td>
+                            {% endif %}            
+                        </tr>
+                    {%endfor%}
+                </tbody>
+            </table>
+        </div>
+        {%endif%}
+    </div>
+    </br>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  </body>
+</html>

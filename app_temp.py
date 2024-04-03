@@ -36,23 +36,25 @@ def signup_admin():
     '''
     # Validate data
     try:
-
-        # Extract variables from the request
-        _name = request.form.get("name")
-        _email = request.form.get("email")
-        _phone = request.form.get("phone")
-        _password = request.form.get("password")
-        _username = request.form.get("username")
-        _position = request.form.get("position")
-
-        # Validate data
-        response = validation.validate_data(_name, _email, _phone, _password, _username)
+        response = validation.validate_data(request.json["name"],
+                                            request.json["email"],
+                                            request.json["phone"],
+                                            request.json["password"],
+                                            request.json["username"])
         if response[1] != 200:
             return response
-        if not _position:
-            return render_template("error.html", message="Please enter position."), 500
-        if not validation.validate_admin_position(_position):
-            return render_template("error.html", message="Invalid position."), 500
+        if not request.json["position"]:
+            return jsonify({"Message": "Please enter position."}), 500
+        if not validation.validate_admin_position(request.json["position"]):
+            return jsonify({"Message": "Invalid position."}), 500
+
+        # Read the input from signup page and register a new user
+        _name = request.json["name"]
+        _email = request.json["email"]
+        _phone = request.json["phone"]
+        _password = request.json["password"]
+        _username = request.json["username"]
+        _position = request.json["position"]
 
         cursor = conn.cursor()
         sql = "INSERT into \"User\"(user_id, username, password, email, phone, Name) values (0,\"{}\",\"{}\",\"{}\",\"{}\",\"{}\");".format(
@@ -75,9 +77,9 @@ def signup_admin():
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Sign-up"), 500
+        return jsonify({"Message": "Error occured in Sign-up"}), 500
 
-    return render_template("success.html", message="Successfully registered."), 200
+    return jsonify({"Message": "Successfully registered."}), 200
 
 
 # Sign-up vendor
@@ -89,19 +91,22 @@ def signup_vendor():
     '''
     # Validate data
     try:
-        # Extract variables from the request
-        _name = request.form.get("name")
-        _email = request.form.get("email")
-        _phone = request.form.get("phone")
-        _password = request.form.get("password")
-        _username = request.form.get("username")
-        _city = request.form.get("city")
-        _company = request.form.get("company")
-
-        # Validate data
-        response = validation.validate_data(_name, _email, _phone, _password, _username)
+        response = validation.validate_data(request.json["name"],
+                                            request.json["email"],
+                                            request.json["phone"],
+                                            request.json["password"],
+                                            request.json["username"])
         if response[1] != 200:
             return response
+
+        # read the input from signup page and register a new user
+        _name = request.json["name"]
+        _email = request.json["email"]
+        _phone = request.json["phone"]
+        _password = request.json["password"]
+        _username = request.json["username"]
+        _city = request.json["city"]
+        _company = request.json["company"]
 
         cursor = conn.cursor()
         sql = "INSERT into \"User\"(user_id, username, password, email, phone, Name) values (0,\"{}\",\"{}\",\"{}\",\"{}\",\"{}\");".format(
@@ -124,9 +129,9 @@ def signup_vendor():
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Sign-up"), 500
+        return jsonify({"Message": "Error occured in Sign-up"}), 500
 
-    return render_template("success.html", message="Successfully registered."), 200
+    return jsonify({"Message": "Successfully registered."}), 200
 
 
 # Sign-up customer
@@ -138,21 +143,24 @@ def signup_customer():
     '''
     # Validate data
     try:
-        # Extract variables from the request
-        _name = request.form.get("name")
-        _email = request.form.get("email")
-        _phone = request.form.get("phone")
-        _password = request.form.get("password")
-        _username = request.form.get("username")
-        _bank = request.form.get("bank_name")
-        _account = request.form.get("bank_acc")
-
-        # Validate data
-        response = validation.validate_data(_name, _email, _phone, _password, _username)
+        response = validation.validate_data(request.json["name"],
+                                            request.json["email"],
+                                            request.json["phone"],
+                                            request.json["password"],
+                                            request.json["username"])
         if response[1] != 200:
             return response
-        if not validation.validate_account(_account):
-            return render_template("error.html", message="Invalid account number."), 500
+        if not validation.validate_account(request.json["account"]):
+            return jsonify({"Message": "Invalid account number."}), 500
+
+        # read the input from signup page and register a new user
+        _name = request.json["name"]
+        _email = request.json["email"]
+        _phone = request.json["phone"]
+        _password = request.json["password"]
+        _username = request.json["username"]
+        _bank = request.json["bank"]
+        _account = request.json["account"]
 
         cursor = conn.cursor()
         sql = "INSERT into \"User\"(user_id, username, password, email, phone, Name) values (0,\"{}\",\"{}\",\"{}\",\"{}\",\"{}\");".format(
@@ -174,9 +182,9 @@ def signup_customer():
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Sign-up"), 500
+        return jsonify({"Message": "Error occured in Sign-up"}), 500
 
-    return render_template("success.html", message="Successfully registered."), 200
+    return jsonify({"Message": "Successfully registered."}), 200
 
 
 # Update customer data
@@ -190,25 +198,27 @@ def update_customer():
     try:
         if session.get("user_id"):
             _userid = session.get("user_id")
-            # Extract variables from the request
-            _name = request.form.get("name")
-            _email = request.form.get("email")
-            _phone = request.form.get("phone")
-            _password = request.form.get("password")
-            _username = request.form.get("username")
-            _bank = request.form.get("bank_name")
-            _account = request.form.get("bank_acc")
-
-            # Validate data
-            response = validation.validate_data(_name, _email, _phone, _password, _username)
+            response = validation.validate_data(request.json["name"],
+                                                request.json["email"],
+                                                request.json["phone"],
+                                                request.json["password"],
+                                                request.json["username"])
             if response[1] != 200:
                 return response
-            if not validation.validate_account(_account):
-                return render_template("error.html", message="Invalid account number."), 500
+            if not validation.validate_account(request.json["account"]):
+                return jsonify({"Message": "Invalid account number."}), 500
+
+            # read the input from signup page and register a new user
+            _name = request.json["name"]
+            _email = request.json["email"]
+            _phone = request.json["phone"]
+            _password = request.json["password"]
+            _bank = request.json["bank"]
+            _account = request.json["account"]
 
             cursor = conn.cursor()
-            update_user_sql = "UPDATE \"User\" SET password = \"{}\", email = \"{}\", phone = \"{}\", name = \"{}\", username = \"{}\" where user_id = {} ;".format(
-                _password, _email, _phone, _name, _username, _userid)
+            update_user_sql = "UPDATE \"User\" SET password = \"{}\", email = \"{}\", phone = \"{}\", name = \"{}\" where user_id = {} ;".format(
+                _password, _email, _phone, _name, _userid)
             cursor.execute(update_user_sql)
             conn.commit()
 
@@ -219,13 +229,13 @@ def update_customer():
             conn.commit()
 
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in updating customer data"), 500
+        return jsonify({"Message": "Error occured in updating customer data"}), 500
 
-    return render_template("success.html", message="Successfully updated customer details."), 200
+    return jsonify({"Message": "Successfully updated customer details."}), 200
 
 
 # Update vendor data
@@ -239,23 +249,25 @@ def update_vendor():
     try:
         if session.get("user_id"):
             _userid = session.get("user_id")
-            # Extract variables from the request
-            _name = request.form.get("name")
-            _email = request.form.get("email")
-            _phone = request.form.get("phone")
-            _password = request.form.get("password")
-            _username = request.form.get("username")
-            _city = request.form.get("city")
-            _company = request.form.get("company")
-
-            # Validate data
-            response = validation.validate_data(_name, _email, _phone, _password, _username)
+            response = validation.validate_data(request.json["name"],
+                                                request.json["email"],
+                                                request.json["phone"],
+                                                request.json["password"],
+                                                request.json["username"])
             if response[1] != 200:
                 return response
 
+            # read the input from signup page and register a new user
+            _name = request.json["name"]
+            _email = request.json["email"]
+            _phone = request.json["phone"]
+            _password = request.json["password"]
+            _city = request.json["city"]
+            _company = request.json["company"]
+
             cursor = conn.cursor()
-            update_user_sql = "UPDATE \"User\" SET password = \"{}\", email = \"{}\", phone = \"{}\", name = \"{}\", username = \"{}\" where user_id = {} ;".format(
-                _password, _email, _phone, _name, _username, _userid)
+            update_user_sql = "UPDATE \"User\" SET password = \"{}\", email = \"{}\", phone = \"{}\", name = \"{}\" where user_id = {} ;".format(
+                _password, _email, _phone, _name, _userid)
             cursor.execute(update_user_sql)
             conn.commit()
 
@@ -266,13 +278,13 @@ def update_vendor():
             conn.commit()
 
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in updating vendor data"), 500
+        return jsonify({"Message": "Error occured in updating vendor data"}), 500
 
-    return render_template("success.html", message="Successfully updated vendor details."), 200
+    return jsonify({"Message": "Successfully updated vendor details."}), 200
 
 
 # Admin login
@@ -283,24 +295,24 @@ def login_admin():
     Parameters : Username, password
     '''
     try:
-        _username = request.form.get("username")
-        _password = request.form.get("password")
+        _username = request.json["username"]
+        _password = request.json["password"]
         cursor = conn.cursor()
         select_sql = "Select password, user_id from \"User\" join Admin on user_id = admin_id where username = \"{}\"".format(
             _username)
         cursor.execute(select_sql)
         results = cursor.fetchall()
         if len(results) == 0:
-            return render_template("error.html", message="User does not exist"), 404
+            return jsonify({"Message": "User does not exist"}), 404
         if results[0][0] == _password:
             print("Login successful")
             session["user_id"] = results[0][1]
-            return render_template("success.html", message="Login successful"), 200
+            return jsonify({"Message": "Login successful"}), 200
         else:
-            return render_template("error.html", message="Invalid password"), 500
+            return jsonify({"Message": "Invalid password"}), 500
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in login"), 500
+        return jsonify({"Message": "Error occured in login"}), 500
 
 
 # Vendor login
@@ -311,8 +323,8 @@ def login_vendor():
     Parameters : Username, password
     '''
     try:
-        _username = request.form.get("username")
-        _password = request.form.get("password")
+        _username = request.json["username"]
+        _password = request.json["password"]
         cursor = conn.cursor()
         select_sql = "Select password, user_id, admin_id from \"User\" join Vendor on user_id = vendor_id where username = \"{}\"".format(
             _username)
@@ -320,7 +332,7 @@ def login_vendor():
         results = cursor.fetchall()
         print(results)
         if len(results) == 0:
-            return render_template("error.html", message="User does not exist"), 404
+            return jsonify({"Message": "User does not exist"}), 404
         if results[0][0] == _password:
             print("Login successful")
             session["user_id"] = results[0][1]
@@ -328,12 +340,12 @@ def login_vendor():
             if results[0][2] == None:
                 print("Vendor is not approved")
                 msg += ", vendor not approved"
-            return render_template("success.html", message=msg), 200
+            return jsonify({"Message": msg}), 200
         else:
-            return render_template("error.html", message="Invalid password"), 500
+            return jsonify({"Message": "Invalid password"}), 500
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in login"), 500
+        return jsonify({"Message": "Error occured in login"}), 500
 
 
 # Customer login
@@ -344,8 +356,8 @@ def login_customer():
     Parameters : Username, password
     '''
     try:
-        _username = request.form.get("username")
-        _password = request.form.get("password")
+        _username = request.json["username"]
+        _password = request.json["password"]
         print(_username)
         print(_password)
         cursor = conn.cursor()
@@ -354,16 +366,16 @@ def login_customer():
         cursor.execute(select_sql)
         results = cursor.fetchall()
         if len(results) == 0:
-            return render_template("error.html", message="User does not exist"), 404
+            return jsonify({"Message": "User does not exist"}), 404
         if results[0][0] == _password:
             print("Login successful")
             session["user_id"] = results[0][1]
-            return render_template("success.html", message="Login successful"), 200
+            return jsonify({"Message": "Login successful"}), 200
         else:
-            return render_template("error.html", message="Invalid password"), 500
+            return jsonify({"Message": "Invalid password"}), 500
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in login"), 500
+        return jsonify({"Message": "Error occured in login"}), 500
 
 
 # Logout
@@ -375,12 +387,12 @@ def logout():
     try:
         if session.get("user_id"):
             session["user_id"] = None
-            return render_template("success.html", message="Logged out"), 200
+            return jsonify({"Message": "Logged out"}), 200
         else:
-            return render_template("error.html", message="Error occurred in logout"), 500
+            return jsonify({"Message": "Error occured in logout"}), 500
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in logout"), 500
+        return jsonify({"Message": "Error occured in logout"}), 500
 
 
 # View vendor profile
@@ -399,22 +411,16 @@ def view_vendor_profile():
             results = cursor.fetchall()
 
             if len(results) == 0:
-                return render_template("error.html", message="User does not exist"), 404
-
-            vendor_profile = {
-                "name": results[0][0],
-                "email": results[0][1],
-                "phone": results[0][2],
-                "company": results[0][3],
-                "city": results[0][4]
-            }
-            return render_template("vendor_profile.html", vendor=vendor_profile), 200
+                return jsonify({"Message": "User does not exist"}), 404
+            # Form json response for query results
+            json_result = helper.get_json_response(cursor.description, results)
+            return jsonify(json_result), 200
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in view vendor profile"), 500
+        return jsonify({"Message": "Error occured in view vendor profile"}), 500
 
 
 # View customer profile
@@ -433,25 +439,15 @@ def view_customer_profile():
             results = cursor.fetchall()
 
             if len(results) == 0:
-                return render_template("error.html", message="User does not exist"), 404
-
-            customer_profile = {
-                "name": results[0][0],
-                "email": results[0][1],
-                "phone": results[0][2],
-                "bank_name": results[0][3],
-                "bank_acc": results[0][4],
-                "street": results[0][5],
-                "apt": results[0][6],
-                "city": results[0][7],
-                "pin": results[0][8]
-            }
-            return render_template("customer_profile.html", customer=customer_profile), 200
+                return jsonify({"Message": "User does not exist"}), 404
+            # Form json response for query results
+            json_result = helper.get_json_response(cursor.description, results)
+            return jsonify(json_result), 200
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in view customer profile"), 500
+        return jsonify({"Message": "Error occured in view customer profile"}), 500
 
 
 # View admin profile
@@ -470,21 +466,16 @@ def view_admin_profile():
             results = cursor.fetchall()
 
             if len(results) == 0:
-                return render_template("error.html", message="User does not exist"), 404
-                # Form a dictionary from query results
-            admin_profile = {
-                "name": results[0][0],
-                "email": results[0][1],
-                "phone": results[0][2],
-                "admin_position": results[0][3]
-            }
-            return render_template("admin_profile.html", admin=admin_profile), 200
+                return jsonify({"Message": "User does not exist"}), 404
+            # Form json response for query results
+            json_result = helper.get_json_response(cursor.description, results)
+            return jsonify(json_result), 200
 
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in view admin profile"), 500
+        return jsonify({"Message": "Error occured in view admin profile"}), 500
 
 
 # View all books
@@ -503,27 +494,21 @@ def view_all_books():
             results = cursor.fetchall()
 
             if len(results) == 0:
-                return render_template("error.html", message="No books available"), 404
-            # Form a list of dictionaries for query results
-            books = []
-            for row in results:
-                book = {
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Price": row[2],
-                    "Cover_image": row[3],
-                    "Description": row[4],
-                    "Page_count": row[5],
-                    "Avg_rating": row[6],
-                    "Author": row[7]
-                }
-                books.append(book)
-            return render_template("all_books.html", books=books), 200
+                return jsonify({"Message": "No books available"}), 404
+            # Form json response for query results
+            book_authors = helper.get_book_authors(results)
+
+            select_sql = "Select ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating from Book_with_rating;"
+            cursor.execute(select_sql)
+            results = cursor.fetchall()
+            json_result = helper.get_book_with_authors(
+                book_authors, cursor.description, results)
+            return jsonify(json_result), 200
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({" Message": "Unauthenticated"}), 401
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in view all books"), 500
+        return jsonify({"Message": "Error occured in view all books"}), 500
 
 
 # View sale books
@@ -542,28 +527,21 @@ def view_all_sale_books():
             results = cursor.fetchall()
 
             if len(results) == 0:
-                return render_template("error.html", message="No sale books available"), 404
-            # Form a list of dictionaries for query results
-            sale_books = []
-            for row in results:
-                sale_book = {
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Price": row[2],
-                    "Cover_image": row[3],
-                    "Description": row[4],
-                    "Page_count": row[5],
-                    "Avg_rating": row[6],
-                    "Fixed_Discount": row[7],
-                    "Author": row[8]
-                }
-                sale_books.append(sale_book)
-            return render_template("sale_books.html", sale_books=sale_books), 200
+                return jsonify({"Message": "No sale books available"}), 404
+            # Form json response for query results
+            book_authors = helper.get_book_authors(results)
+
+            select_sql = " Select ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, Fixed_Discount from Books_for_Sale"
+            cursor.execute(select_sql)
+            results = cursor.fetchall()
+            json_result = helper.get_book_with_authors(
+                book_authors, cursor.description, results)
+            return jsonify(json_result), 200
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in view all sale books"), 500
+        return jsonify({"Message": "Error occured in view all sale books"}), 500
 
 
 # View rent books
@@ -582,29 +560,22 @@ def view_all_rent_books():
             results = cursor.fetchall()
 
             if len(results) == 0:
-                return render_template("error.html", message="No rent books available"), 404
-            # Form a list of dictionaries for query results
-            rent_books = []
-            for row in results:
-                rent_book = {
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Price": row[2],
-                    "Cover_image": row[3],
-                    "Description": row[4],
-                    "Page_count": row[5],
-                    "Avg_rating": row[6],
-                    "Deposit": row[7],
-                    "Rental_fee": row[8],
-                    "Author": row[9]
-                }
-                rent_books.append(rent_book)
-            return render_template("rent_books.html", rent_books=rent_books), 200
+                return jsonify({"Message": "No rent books available"}), 404
+            # Form json response for query results
+            book_authors = helper.get_book_authors(results)
+
+            select_sql = "Select ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, Deposit, ROUND(Price*0.3, 2) as rental_fee from Books_for_Rent;"
+            cursor.execute(select_sql)
+            results = cursor.fetchall()
+            json_result = helper.get_book_with_authors(
+                book_authors, cursor.description, results)
+            return jsonify(json_result), 200
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in view all rent books"), 500
+
+        return jsonify({"Message": "Error occured in view all rent books"}), 500
 
 
 # View books by category - Academics, Children, Fiction
@@ -626,24 +597,16 @@ def view_books_by_category():
                 results = cursor.fetchall()
 
                 if len(results) == 0:
-                    return render_template("error.html", message="No books available in fiction category"), 404
+                    return jsonify({"Message": "No books available in fiction category"}), 404
 
-                books = []
-                for row in results:
-                    book = {
-                        "ISBN": row[0],
-                        "Title": row[1],
-                        "Price": row[2],
-                        "Cover_image": row[3],
-                        "Description": row[4],
-                        "Page_count": row[5],
-                        "Avg_rating": row[6],
-                        "Genre": row[7],
-                        "Intro": row[8],
-                        "Author": row[9]
-                    }
-                    books.append(book)
-                return render_template("category_books.html", books=books, category=_category), 200
+                book_authors = helper.get_book_authors(results)
+                select_sql = "Select ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, genre, intro " \
+                             "from fiction natural join book_with_rating;"
+                cursor.execute(select_sql)
+                results = cursor.fetchall()
+                json_result = helper.get_book_with_authors(
+                    book_authors, cursor.description, results)
+                return jsonify(json_result), 200
 
             elif _category.lower() == "children":
                 select_sql = "Select ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, age_group, main_character, Name " \
@@ -652,24 +615,16 @@ def view_books_by_category():
                 results = cursor.fetchall()
 
                 if len(results) == 0:
-                    return render_template("error.html", message="No books available in children category"), 404
+                    return jsonify({"Message": "No books available in children category"}), 404
 
-                books = []
-                for row in results:
-                    book = {
-                        "ISBN": row[0],
-                        "Title": row[1],
-                        "Price": row[2],
-                        "Cover_image": row[3],
-                        "Description": row[4],
-                        "Page_count": row[5],
-                        "Avg_rating": row[6],
-                        "Age_group": row[7],
-                        "Main_character": row[8],
-                        "Author": row[9]
-                    }
-                    books.append(book)
-                return render_template("category_books.html", books=books, category=_category), 200
+                book_authors = helper.get_book_authors(results)
+                select_sql = "Select ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating,age_group, main_character "\
+                    "from children natural join book_with_rating;"
+                cursor.execute(select_sql)
+                results = cursor.fetchall()
+                json_result = helper.get_book_with_authors(
+                    book_authors, cursor.description, results)
+                return jsonify(json_result), 200
 
             elif _category.lower() == "academics":
                 select_sql = "Select ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, course, level, Name "\
@@ -678,29 +633,21 @@ def view_books_by_category():
                 results = cursor.fetchall()
 
                 if len(results) == 0:
-                    return render_template("error.html", message="No books available in academics category"), 404
+                    return jsonify({"Message": "No books available in academics category"}), 404
 
-                books = []
-                for row in results:
-                    book = {
-                        "ISBN": row[0],
-                        "Title": row[1],
-                        "Price": row[2],
-                        "Cover_image": row[3],
-                        "Description": row[4],
-                        "Page_count": row[5],
-                        "Avg_rating": row[6],
-                        "Course": row[7],
-                        "Level": row[8],
-                        "Author": row[9]
-                    }
-                    books.append(book)
-                return render_template("category_books.html", books=books, category=_category), 200
+                book_authors = helper.get_book_authors(results)
+                select_sql = "Select ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating,course, level "\
+                             "from Academics natural join book_with_rating;"
+                cursor.execute(select_sql)
+                results = cursor.fetchall()
+                json_result = helper.get_book_with_authors(
+                    book_authors, cursor.description, results)
+                return jsonify(json_result), 200
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in view books by category"), 500
+        return jsonify({"Message": "Error occured in view books by category"}), 500
 
 
 # View sale books by vendor
@@ -719,27 +666,15 @@ def view_sale_book_vendor():
             results = cursor.fetchall()
 
             if len(results) == 0:
-                return render_template("error.html", message="No sale books uploaded"), 404
-
-            sale_books = []
-            for row in results:
-                sale_book = {
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Price": row[2],
-                    "Cover_image": row[3],
-                    "Description": row[4],
-                    "Page_count": row[5],
-                    "Fixed_discount": row[6],
-                    "Available_quantity": row[7]
-                }
-                sale_books.append(sale_book)
-            return render_template("sale_books.html", sale_books=sale_books), 200
+                return jsonify({"Message": "No sale books uploaded"}), 404
+            # Form json response for query results
+            json_result = helper.get_json_response(cursor.description, results)
+            return jsonify(json_result), 200
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in view sale books uploaded by vendor"), 500
+        return jsonify({"Message": "Error occured in view sale books uploaded by vendor"}), 500
 
 
 # View rent books by vendor
@@ -758,29 +693,16 @@ def view_rent_book_vendor():
             results = cursor.fetchall()
 
             if len(results) == 0:
-                return render_template("error.html", message="No rent books uploaded"), 404
-
-            rent_books = []
-            for row in results:
-                rent_book = {
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Price": row[2],
-                    "Cover_image": row[3],
-                    "Description": row[4],
-                    "Page_count": row[5],
-                    "Deposit": row[6],
-                    "Rental_fee": row[7],
-                    "Quantity": row[8]
-                }
-                rent_books.append(rent_book)
-            return render_template("rent_books.html", rent_books=rent_books), 200
+                return jsonify({"Message": "No rent books uploaded"}), 404
+            # Form json response for query results
+            json_result = helper.get_json_response(cursor.description, results)
+            return jsonify(json_result), 200
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
     except Exception as e:
         print("Exception")
         print(e)
-        return render_template("error.html", message="Error occurred in view rent books uploaded by vendor"), 500
+        return jsonify({"Message": "Error occured in view rent books uploaded by vendor"}), 500
 
 
 # View customer purchase history
@@ -803,23 +725,16 @@ def view_purchase_history():
             results = cursor.fetchall()
 
             if len(results) == 0:
-                return render_template("error.html", message="No purchases made"), 404
-
-            purchases = []
-            for row in results:
-                purchase = {
-                    "Title": row[0],
-                    "Cover_image": row[1],
-                    "Quantity": row[2],
-                    "Price": row[3]
-                }
-                purchases.append(purchase)
-            return render_template("purchase_history.html", purchases=purchases), 200
+                return jsonify({"Message": "No purchases made"}), 404
+            # Form json response for query results
+            json_result = helper.get_json_response(cursor.description, results)
+            return jsonify(json_result), 200
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
     except Exception as e:
+        print("Exception")
         print(e)
-        return render_template("error.html", message="Error occurred in view purchase history"), 500
+        return jsonify({"Message": "Error occured in view purchase history"}), 500
 
 
 # View customer rent history
@@ -842,23 +757,16 @@ def view_rental_history():
             results = cursor.fetchall()
 
             if len(results) == 0:
-                return render_template("error.html", message="No books rented"), 404
-
-            rentals = []
-            for row in results:
-                rental = {
-                    "Title": row[0],
-                    "Cover_image": row[1],
-                    "Quantity": row[2],
-                    "Rental_fee": row[3]
-                }
-                rentals.append(rental)
-            return render_template("rental_history.html", rentals=rentals), 200
+                return jsonify({"Message": "No books rented"}), 404
+            # Form json response for query results
+            json_result = helper.get_json_response(cursor.description, results)
+            return jsonify(json_result), 200
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
     except Exception as e:
+        print("Exception")
         print(e)
-        return render_template("error.html", message="Error occurred in view rental history"), 500
+        return jsonify({"Message": "Error occured in view rental history"}), 500
 
 
 # Get out of stock books
@@ -878,27 +786,16 @@ def view_outofstock():
             results = cursor.fetchall()
 
             if len(results) == 0:
-                return render_template("error.html", message="No out of stock books found"), 404
-
-            out_of_stock_books = []
-            for row in results:
-                book = {
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Cover_image": row[2],
-                    "Description": row[3],
-                    "Publisher": row[4],
-                    "Published_date": row[5],
-                    "Price": row[6],
-                    "Vendor_name": row[7]
-                }
-                out_of_stock_books.append(book)
-            return render_template("out_of_stock.html", out_of_stock_books=out_of_stock_books), 200
+                return jsonify({"Message": "No out of stock books found"}), 404
+            # Form json response for query results
+            json_result = helper.get_json_response(cursor.description, results)
+            return jsonify(json_result), 200
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
     except Exception as e:
+        print("Exception")
         print(e)
-        return render_template("error.html", message="Error occurred in view out of stock books"), 500
+        return jsonify({"Message": "Error occured in view out of stock books"}), 500
 
 
 # Admin views customer rent orders
@@ -910,8 +807,8 @@ def view_order_history():
     '''
     try:
         if session.get("user_id"):
-            _username = request.form.get("customer_username")
-            _date = request.form.get("date")
+            _username = request.json["customer_username"]
+            _date = request.json["date"]
             cursor = conn.cursor()
 
             if _username != "":
@@ -930,17 +827,11 @@ def view_order_history():
                 results = cursor.fetchall()
 
                 if len(results) == 0:
-                    return render_template("error.html", message="No books rented by the customer"), 404
-
-                variables = []
-                for row in results:
-                    variables.append({
-                        "Title": row[0],
-                        "Cover Image": row[1],
-                        "Quantity": row[2],
-                        "Rent Fee": row[3]
-                    })
-                return render_template("order_history.html", variables=variables), 200
+                    return jsonify({"Message": "No books rented by customer"}), 404
+                # Form json response for query results
+                json_result = helper.get_json_response(
+                    cursor.description, results)
+                return jsonify(json_result), 200
             elif _date != "":
                 select_sql = "Select title, cover_image, qty, R.rent_fee " \
                     "from Rent_Order R join Book B on R.ISBN = B.ISBN natural join Orders " \
@@ -951,17 +842,11 @@ def view_order_history():
                 results = cursor.fetchall()
 
                 if len(results) == 0:
-                    return render_template("error.html", message="No books rented by the customer"), 404
-
-                variables = []
-                for row in results:
-                    variables.append({
-                        "Title": row[0],
-                        "Cover Image": row[1],
-                        "Quantity": row[2],
-                        "Rent Fee": row[3]
-                    })
-                return render_template("order_history.html", variables=variables), 200
+                    return jsonify({"Message": "No books rented on given date"}), 404
+                # Form json response for query results
+                json_result = helper.get_json_response(
+                    cursor.description, results)
+                return jsonify(json_result), 200
             else:
                 select_sql = "Select title, cover_image, qty, R.rent_fee " \
                     "from Rent_Order R join Book B on R.ISBN = B.ISBN natural join Orders " \
@@ -971,23 +856,18 @@ def view_order_history():
                 results = cursor.fetchall()
 
                 if len(results) == 0:
-                    return render_template("error.html", message="No books rented by the customer"), 404
-
-                variables = []
-                for row in results:
-                    variables.append({
-                        "Title": row[0],
-                        "Cover Image": row[1],
-                        "Quantity": row[2],
-                        "Rent Fee": row[3]
-                    })
-                return render_template("order_history.html", variables=variables), 200
+                    return jsonify({"Message": "No books rented yet"}), 404
+                # Form json response for query results
+                json_result = helper.get_json_response(
+                    cursor.description, results)
+                return jsonify(json_result), 200
 
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
     except Exception as e:
+        print("Exception")
         print(e)
-        return render_template("error.html", message="Error occurred in view rental history"), 500
+        return jsonify({"Message": "Error occured in view rental history"}), 500
 
 
 # Admin views customer sale orders
@@ -999,8 +879,8 @@ def view_sale_order_history():
     '''
     try:
         if session.get("user_id"):
-            _username = request.form.get("customer_username")
-            _date = request.form.get("date")
+            _username = request.json["customer_username"]
+            _date = request.json["date"]
             cursor = conn.cursor()
 
             if _username != "":
@@ -1019,17 +899,11 @@ def view_sale_order_history():
                 results = cursor.fetchall()
 
                 if len(results) == 0:
-                    return render_template("error.html", message="No books bought by the customer"), 404
-
-                variables = []
-                for row in results:
-                    variables.append({
-                        "Title": row[0],
-                        "Cover Image": row[1],
-                        "Quantity": row[2],
-                        "Price": row[3]
-                    })
-                return render_template("sale_order_history.html", variables=variables), 200
+                    return jsonify({"Message": "No books bought by customer"}), 404
+                # Form json response for query results
+                json_result = helper.get_json_response(
+                    cursor.description, results)
+                return jsonify(json_result), 200
             elif _date != "":
                 select_sql = "Select title, cover_image, qty, R.price " \
                     "from Sale_Order R join Book B on R.ISBN = B.ISBN natural join Orders " \
@@ -1040,17 +914,11 @@ def view_sale_order_history():
                 results = cursor.fetchall()
 
                 if len(results) == 0:
-                    return render_template("error.html", message="No books bought on given date"), 404
-
-                variables = []
-                for row in results:
-                    variables.append({
-                        "Title": row[0],
-                        "Cover Image": row[1],
-                        "Quantity": row[2],
-                        "Price": row[3]
-                    })
-                return render_template("sale_order_history.html", variables=variables), 200
+                    return jsonify({"Message": "No books bought on given date"}), 404
+                # Form json response for query results
+                json_result = helper.get_json_response(
+                    cursor.description, results)
+                return jsonify(json_result), 200
             else:
                 select_sql = "Select title, cover_image, qty, R.price " \
                     "from Sale_Order R join Book B on R.ISBN = B.ISBN natural join Orders " \
@@ -1060,23 +928,18 @@ def view_sale_order_history():
                 results = cursor.fetchall()
 
                 if len(results) == 0:
-                    return render_template("error.html", message="No books bought yet"), 404
-
-                variables = []
-                for row in results:
-                    variables.append({
-                        "Title": row[0],
-                        "Cover Image": row[1],
-                        "Quantity": row[2],
-                        "Price": row[3]
-                    })
-                return render_template("sale_order_history.html", variables=variables), 200
+                    return jsonify({"Message": "No books bought yet"}), 404
+                # Form json response for query results
+                json_result = helper.get_json_response(
+                    cursor.description, results)
+                return jsonify(json_result), 200
 
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
     except Exception as e:
+        print("Exception")
         print(e)
-        return render_template("error.html", message="Error occurred in view rental history"), 500
+        return jsonify({"Message": "Error occured in view sale history"}), 500
 
 
 @app.route('/api/search/category', methods=['GET'])
@@ -1085,183 +948,56 @@ def search_book_category():
     This function search the book by the category
     '''
     try:
-        _category = request.form.get('category')
+        _category = request.json['category']
         cursor = conn.cursor()
         if _category == 'Academics':
-            select_sql = "SELECT B.ISBN, B.title, B.price, B.cover_image, B.description, B.page_count, B.publisher, B.published_date, R.Avg_rating, Author.Name, A.course, A.level FROM book B JOIN Academics A ON B.ISBN = A.ISBN JOIN Book_with_rating R ON B.ISBN = R.ISBN JOIN Book_Author BA ON B.ISBN=BA.ISBN JOIN Author ON BA.author_id=Author.author_id where B.visibility = true;"
-            cursor.execute(select_sql)
-            results = cursor.fetchall()
-
-            if len(results) == 0:
-                return render_template("error.html", message="Invalid search"), 404
-
-            variables = []
-            for row in results:
-                variables.append({
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Price": row[2],
-                    "Cover Image": row[3],
-                    "Description": row[4],
-                    "Page Count": row[5],
-                    "Publisher": row[6],
-                    "Published Date": row[7],
-                    "Average Rating": row[8],
-                    "Author": row[9],
-                    "Course": row[10],
-                    "Level": row[11]
-                })
-            return render_template("book_by_category.html", variables=variables), 200
-
+            select_sql = "SELECT * FROM book B JOIN Academics A ON B.ISBN = A.ISBN JOIN Book_with_rating R ON B.ISBN = R.ISBN JOIN Book_Author BA ON B.ISBN=BA.ISBN JOIN Author ON BA.author_id=Author.author_id;"
         elif _category == 'Fiction':
-            select_sql = "SELECT B.ISBN, B.title, B.price, B.cover_image, B.description, B.page_count, B.publisher, B.published_date, R.Avg_rating, Author.Name, A.genre, A.intro FROM book B JOIN Fiction A ON B.ISBN = A.ISBN JOIN Book_with_rating R ON B.ISBN = R.ISBN JOIN Book_Author BA ON B.ISBN=BA.ISBN JOIN Author ON BA.author_id=Author.author_id where B.visibility = true;"
-            cursor.execute(select_sql)
-            results = cursor.fetchall()
-
-            if len(results) == 0:
-                return render_template("error.html", message="Invalid search"), 404
-
-            variables = []
-            for row in results:
-                variables.append({
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Price": row[2],
-                    "Cover Image": row[3],
-                    "Description": row[4],
-                    "Page Count": row[5],
-                    "Publisher": row[6],
-                    "Published Date": row[7],
-                    "Average Rating": row[8],
-                    "Author": row[9],
-                    "Genre": row[10],
-                    "Intro": row[11]
-                })
-            return render_template("book_by_category.html", variables=variables), 200
-
+            select_sql = "SELECT * FROM book B JOIN Fiction A ON B.ISBN = A.ISBN JOIN Book_with_rating R ON B.ISBN = R.ISBN JOIN Book_Author BA ON B.ISBN=BA.ISBN JOIN Author ON BA.author_id=Author.author_id;;"
         elif _category == 'Children':
-            select_sql = "SELECT B.ISBN, B.title, B.price, B.cover_image, B.description, B.page_count, B.publisher, B.published_date, R.Avg_rating, Author.Name, A.age_group, A.main_character FROM book B JOIN Children A ON B.ISBN = A.ISBN JOIN Book_with_rating R ON B.ISBN = R.ISBN JOIN Book_Author BA ON B.ISBN=BA.ISBN JOIN Author ON BA.author_id=Author.author_id where B.visibility = true;"
-            cursor.execute(select_sql)
-            results = cursor.fetchall()
-
-            if len(results) == 0:
-                return render_template("error.html", message="Invalid search"), 404
-
-            variables = []
-            for row in results:
-                variables.append({
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Price": row[2],
-                    "Cover Image": row[3],
-                    "Description": row[4],
-                    "Page Count": row[5],
-                    "Publisher": row[6],
-                    "Published Date": row[7],
-                    "Average Rating": row[8],
-                    "Author": row[9],
-                    "Age Group": row[10],
-                    "Main Character": row[11]
-                })
-            return render_template("book_by_category.html", variables=variables), 200
-
+            select_sql = "SELECT * FROM book B JOIN Children A ON B.ISBN = A.ISBN JOIN Book_with_rating R ON B.ISBN = R.ISBN JOIN Book_Author BA ON B.ISBN=BA.ISBN JOIN Author ON BA.author_id=Author.author_id;;"
         else:
-            return render_template("error.html", message="Invalid search"), 404
+            return jsonify({"Message": "Invalid search"}), 404
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
 
+        if len(results) == 0:
+            return jsonify({"Message": "Invalid search"}), 404
+        # Form json response for query results
+        json_result = helper.get_json_response(cursor.description, results)
+        return jsonify(json_result), 20
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in view vendor profile"), 500
+        return jsonify({"Message": "Error occured in view vendor profile"}), 500
 
 
 @app.route('/api/search/genre', methods=['GET'])
 def search_book_genre():
     '''
-    This function search the book by the genre
+    This function search the book by the category
     '''
     try:
         _category = request.json['category']
         cursor = conn.cursor()
         if _category == 'Fantasy':
-            select_sql = "SELECT B.ISBN, B.title, B.price, B.cover_image, B.page_count, B.description, B.publisher, B.published_date, A.genre, A.intro, R.Avg_rating FROM book B JOIN Fiction A ON B.ISBN = A.ISBN JOIN Book_with_rating R ON B.ISBN = R.ISBN where A.genre='Fantasy' where B.visibility = true;"
-            cursor.execute(select_sql)
-            results = cursor.fetchall()
-
-            if len(results) == 0:
-                return render_template("error.html", message="No Books Found"), 404
-
-            variables = []
-            for row in results:
-                variables.append({
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Price": row[2],
-                    "Cover Image": row[3],
-                    "Page Count": row[4],
-                    "Description": row[5],
-                    "Publisher": row[6],
-                    "Published Date": row[7],
-                    "Genre": row[8],
-                    "Intro": row[9],
-                    "Average Rating": row[10]
-                })
-            return render_template("book_by_genre.html", variables=variables), 200
-
+            select_sql = "SELECT * FROM book B JOIN Fiction A ON B.ISBN = A.ISBN JOIN Book_with_rating R ON B.ISBN = R.ISBN where A.genre='Fantasy';"
         elif _category == 'Thriller':
-            select_sql = "SELECT B.ISBN, B.title, B.price, B.cover_image, B.page_count, B.description, B.publisher, B.published_date, A.genre, A.intro, R.Avg_rating FROM book B JOIN Fiction A ON B.ISBN = A.ISBN JOIN Book_with_rating R ON B.ISBN = R.ISBN where A.genre='Thriller' where B.visibility = true;"
-            cursor.execute(select_sql)
-            results = cursor.fetchall()
-
-            if len(results) == 0:
-                return render_template("error.html", message="No Books Found"), 404
-
-            variables = []
-            for row in results:
-                variables.append({
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Price": row[2],
-                    "Cover Image": row[3],
-                    "Page Count": row[4],
-                    "Description": row[5],
-                    "Publisher": row[6],
-                    "Published Date": row[7],
-                    "Genre": row[8],
-                    "Intro": row[9],
-                    "Average Rating": row[10]
-                })
-            return render_template("book_by_genre.html", variables=variables), 200
-
+            select_sql = "SELECT * FROM book B JOIN Fiction A ON B.ISBN = A.ISBN JOIN Book_with_rating R ON B.ISBN = R.ISBN where A.genre='Thriller';"
         elif _category == 'ScienceFiction':
-            select_sql = "SELECT B.ISBN, B.title, B.price, B.cover_image, B.page_count, B.description, B.publisher, B.published_date, A.genre, A.intro, R.Avg_rating FROM book B JOIN Fiction A ON B.ISBN = A.ISBN JOIN Book_with_rating R ON B.ISBN = R.ISBN where A.genre='ScienceFiction' where B.visibility = true;"
-            cursor.execute(select_sql)
-            results = cursor.fetchall()
-
-            if len(results) == 0:
-                return render_template("error.html", message="No Books Found"), 404
-
-            variables = []
-            for row in results:
-                variables.append({
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Price": row[2],
-                    "Cover Image": row[3],
-                    "Page Count": row[4],
-                    "Description": row[5],
-                    "Publisher": row[6],
-                    "Published Date": row[7],
-                    "Genre": row[8],
-                    "Intro": row[9],
-                    "Average Rating": row[10]
-                })
-            return render_template("book_by_genre.html", variables=variables), 200
-
+            select_sql = "SELECT * FROM book B JOIN Fiction A ON B.ISBN = A.ISBN JOIN Book_with_rating R ON B.ISBN = R.ISBN where A.genre='ScienceFiction';"
         else:
-            return render_template("error.html", message="Invalid search"), 404
+            return jsonify({"Message": "Invalid search"}), 404
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
 
+        if len(results) == 0:
+            return jsonify({"Message": "Invalid search"}), 404
+        # Form json response for query results
+        json_result = helper.get_json_response(cursor.description, results)
+        return jsonify(json_result), 20
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in view vendor profile"), 500
+        return jsonify({"Message": "Error occured in view vendor profile"}), 500
 
 
 @app.route('/api/sort/price', methods=['GET'])
@@ -1270,32 +1006,22 @@ def sort_based_price():
     This function sort the book by the price
     '''
     try:
-        _min_price = request.form.get("min_price")
-        _max_price = request.form.get("max_price")
+        _min_price = request.json['min_price']
+        _max_price = request.json['max_price']
+        print("Here")
         cursor = conn.cursor()
-        select_sql = "SELECT ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating FROM Book_with_rating WHERE Price >= %s AND Price <= %s ORDER BY Price"
+        select_sql = "SELECT * FROM Book_with_rating WHERE Price >= %s AND Price <= %s ORDER BY Price"
         cursor.execute(select_sql, (_min_price, _max_price))
         results = cursor.fetchall()
 
         if len(results) == 0:
-            return render_template("error.html", message="Invalid search"), 404
-
-        variables = []
-        for row in results:
-            variables.append({
-                "ISBN": row[0],
-                "Title": row[1],
-                "Price": row[2],
-                "Cover Image": row[3],
-                "Description": row[4],
-                "Page Count": row[5],
-                "Avg Rating": row[6]
-            })
-        return render_template("sort_based_price.html", variables=variables), 200
-
+            return jsonify({"Message": "Invalid search"}), 404
+        # Form json response for query results
+        json_result = helper.get_json_response(cursor.description, results)
+        return jsonify(json_result), 20
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in price profile"), 500
+        return jsonify({"Message": "Error occured in price profile"}), 500
 
 
 @app.route('/api/sort/ratings', methods=['GET'])
@@ -1305,29 +1031,18 @@ def sort_based_rating():
     '''
     try:
         cursor = conn.cursor()
-        select_sql = "SELECT ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating FROM Book_with_rating ORDER BY Avg_rating"
+        select_sql = "SELECT * FROM Book_with_rating ORDER BY Avg_rating"
         cursor.execute(select_sql)
         results = cursor.fetchall()
 
         if len(results) == 0:
-            return render_template("error.html", message="Invalid search"), 404
-
-        variables = []
-        for row in results:
-            variables.append({
-                "ISBN": row[0],
-                "Title": row[1],
-                "Price": row[2],
-                "Cover Image": row[3],
-                "Description": row[4],
-                "Page Count": row[5],
-                "Avg Rating": row[6]
-            })
-        return render_template("sort_based_rating.html", variables=variables), 200
-
+            return jsonify({"Message": "Invalid search"}), 404
+        # Form json response for query results
+        json_result = helper.get_json_response(cursor.description, results)
+        return jsonify(json_result), 20
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in sort ratings"), 500
+        return jsonify({"Message": "Error occured in sort ratings"}), 500
 
 
 @app.route('/api/display/address', methods=['GET'])
@@ -1340,64 +1055,58 @@ def display_address():
         cursor.execute(select_sql)
         results = cursor.fetchall()
         if len(results) == 0:
-            return render_template("error.html", message="Invalid search"), 404
-
-        variables = []
-        for row in results:
-            variables.append({
-                "Street": row[0],
-                "Apartment": row[1],
-                "City": row[2],
-                "Pin": row[3]
-            })
-        return render_template("display_address.html", variables=variables), 200
-
+            return jsonify({"Message": "Invalid search"}), 404
+        # Form json response for query results
+        json_result = helper.get_json_response(cursor.description, results)
+        return jsonify(json_result), 20
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in display address"), 500
+        return jsonify({"Message": "Error occured in display address"}), 500
 
 
 @app.route('/api/add/address', methods=['POST'])
 def add_address():
     try:
         _userid = session.get("user_id")
-        _street = request.form.get("street")
-        _apt = request.form.get("apt")
-        _city = request.form.get("city")
-        _pin = request.form.get("pin")
+        print(_userid)
+        data = request.get_json()
         cursor = conn.cursor()
-        select_sql = "select max(addr_id) from Address where customer_id = '{}'".format(_userid)
+        select_sql = "select max(addr_id) from Address"
         cursor.execute(select_sql)
         results = cursor.fetchall()
+        print("\n\n\n")
+        print("Executed")
+        print("\n\n")
         val = helper.get_json_response(cursor.description, results)[
             'Results'][0]['max(addr_id)']
+        print(val)
+        print("\n\n")
         insert_sql = "insert into Address (customer_id, addr_id, street, apt, city, pin) values ('{}', '{}', '{}', '{}', '{}', '{}')".format(
-            _userid, val+1, _street, _apt, _city, _pin)
+            _userid, val+1, data['street'], data['apt'], data['city'], data['pin'])
         cursor.execute(insert_sql)
         conn.commit()
-        return render_template("success.html", message="Address added successfully"), 200
+        return jsonify({"Message": "Address added successfully"}), 201
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred while adding address"), 500
+        return jsonify({"Message": "Error occurred while adding address"}), 500
 
 
 @app.route('/api/delete/address', methods=['GET'])
 def delete_address():
     try:
         _userid = session.get("user_id")
-        _address_id = request.form.get("address_id")
+        data = request.get_json()
         cursor = conn.cursor()
         delete_sql = "delete from Address where customer_id ={} and addr_id = {}".format(
-            _userid, _address_id)
+            5, data['address_id'])
         cursor.execute(delete_sql)
         if cursor.rowcount == 0:
-            return render_template("error.html", message="Invalid address id"), 404
+            return jsonify({"Message": "Invalid address id"}), 404
         conn.commit()
-        return render_template("success.html", message="ddress deleted successfully"), 200
-
+        return jsonify({"Message": "Address deleted successfully"}), 200
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred while deleting address"), 500
+        return jsonify({"Message": "Error occurred while deleting address"}), 500
 
 
 # Add to cart
@@ -1413,25 +1122,25 @@ def add_to_cart():
             cursor = conn.cursor()
 
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
-        _isbn = request.form.get("isbn")
-        _for_rent = request.form.get("for_rent")
-        _for_sale = request.form.get("for_sale")
-        _qty = request.form.get("qty")
+        _isbn = request.json["isbn"]
+        _for_rent = request.json["for_rent"]
+        _for_sale = request.json["for_sale"]
+        _qty = request.json["qty"]
 
-        if (bool(_for_sale) and bool(_for_rent)) or _for_rent == _for_sale or not bool(_qty) or not bool(_isbn):
-            return render_template("error.html", message="False Inputs!"), 400
+        if (bool(_for_sale) and bool(_for_rent)) or _for_rent == _for_sale or not bool(_qty):
+            return jsonify({"Message": "False Inputs!"}), 400
 
         if bool(_for_sale):
             _available_qty = "SELECT avail_qty from sale_book where ISBN = \"{}\";".format(_isbn)
             if cursor.execute(_available_qty) < _qty:
-                return render_template("error.html", message="Exceeds Available Quantity!"), 400
+                return jsonify({"Message": "Exceeds Available Quantity!"}), 400
 
         else:
             _available_qty = "SELECT qty from rent_book where ISBN = \"{}\";".format(_isbn)
             if cursor.execute(_available_qty) < _qty:
-                return render_template("error.html", message="Exceeds Available Quantity!"), 400
+                return jsonify({"Message": "Exceeds Available Quantity!"}), 400
 
         sql = "INSERT into Cart(customer_id, isbn, for_rent, for_sale, qty) values (\"{}\",\"{}\",\"{}\",\"{}\",\"{}\");".format(
             _userid, _isbn, _for_rent, _for_sale, _qty)
@@ -1441,9 +1150,9 @@ def add_to_cart():
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Add-to-cart"), 500
+        return jsonify({"Message": "Error occurred in Add-to-cart"}), 500
 
-    return render_template("success.html", message="Successfully added to cart!"), 200
+    return jsonify({"Message": "Successfully added to cart!"}), 200
 
 
 # Update qty in cart
@@ -1459,25 +1168,25 @@ def update_qty_in_cart():
             cursor = conn.cursor()
 
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
-        _isbn = request.form.get("isbn")
-        _for_rent = request.form.get("for_rent")
-        _for_sale = request.form.get("for_sale")
-        _qty = request.form.get("qty")
+        _isbn = request.json["isbn"]
+        _for_rent = request.json["for_rent"]
+        _for_sale = request.json["for_sale"]
+        _qty = request.json["qty"]
 
-        if not bool(_qty) or not bool(_isbn):
-            return render_template("error.html", message="False Inputs!"), 400
+        if not bool(_qty):
+            return jsonify({"Message": "False Inputs!"}), 400
 
         if bool(_for_sale):
             _available_qty = "SELECT avail_qty from sale_book where ISBN = \"{}\";".format(_isbn)
             if cursor.execute(_available_qty) < _qty:
-                return render_template("error.html", message="Exceeds Available Quantity!"), 400
+                return jsonify({"Message": "Exceeds Available Quantity!"}), 400
 
         else:
             _available_qty = "SELECT qty from rent_book where ISBN = \"{}\";".format(_isbn)
             if bool(cursor.execute(_available_qty)) and cursor.fetchone()[0] < _qty:
-                return render_template("error.html", message="Exceeds Available Quantity!"), 400
+                return jsonify({"Message": "Exceeds Available Quantity!"}), 400
 
         sql = "UPDATE Cart SET qty = \"{}\" where customer_id = \"{}\" and isbn = \"{}\" and for_rent = \"{}\" and for_sale = \"{}\";".format(
             _qty, _userid, _isbn, _for_rent, _for_sale)
@@ -1487,9 +1196,9 @@ def update_qty_in_cart():
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in updating quantity"), 500
+        return jsonify({"Message": "Error occurred in updating quantity"}), 500
 
-    return render_template("success.html", message="Successfully updated quantity!"), 200
+    return jsonify({"Message": "Successfully updated quantity!"}), 200
 
 
 # Remove from cart
@@ -1505,11 +1214,11 @@ def remove_from_cart():
             cursor = conn.cursor()
 
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
-        _isbn = request.form.get("isbn")
-        _for_rent = request.form.get("for_rent")
-        _for_sale = request.form.get("for_sale")
+        _isbn = request.json["isbn"]
+        _for_rent = request.json["for_rent"]
+        _for_sale = request.json["for_sale"]
 
         sql = "DELETE from Cart where customer_id = \"{}\" and ISBN = \"{}\" and for_rent = \"{}\" and for_sale = \"{}\";".format(
             _userid, _isbn, _for_rent, _for_sale)
@@ -1519,9 +1228,9 @@ def remove_from_cart():
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Remove-from-cart"), 500
+        return jsonify({"Message": "Error occurred in Remove-from-cart"}), 500
 
-    return render_template("success.html", message="Successfully removed from cart!"), 200
+    return jsonify({"Message": "Successfully removed from cart!"}), 200
 
 
 # View cart
@@ -1535,7 +1244,7 @@ def view_cart():
             _userid = session.get("user_id")
             cursor = conn.cursor()
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
         _sale_books = "Select ISBN, title, cover_image, for_rent, for_sale, qty, price*qty*((100-fixed_discount)/100) as amount from ((cart natural join book) natural join sale_book) where customer_id = \"{}\" and for_rent = 0".format(_userid)
         _rent_books = "Select ISBN, title, cover_image, for_rent, for_sale, qty, ((price*0.30)+deposit)*qty as amount from ((cart natural join book) natural join rent_book) where customer_id = \"{}\" and for_sale = 0;".format(_userid)
@@ -1545,25 +1254,15 @@ def view_cart():
         results = cursor.fetchall()
 
         if len(results) == 0:
-            return render_template("error.html", message="No item in cart"), 404
-
-        variables = []
-        for row in results:
-            variables.append({
-                "ISBN": row[0],
-                "Title": row[1],
-                "Cover Image": row[2],
-                "For Rent": row[3],
-                "For Sale": row[4],
-                "QTY": row[5],
-                "Amount": row[6]
-            })
+            return jsonify({"Message": "No item in cart"}), 404
+        # Form json response for query results
+        json_result = helper.get_json_response(cursor.description, results)
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in View-cart"), 500
+        return jsonify({"Message": "Error occurred in View-cart"}), 500
 
-    return render_template("view_cart.html", variables=variables), 200
+    return jsonify(json_result), 200
 
 
 # Add to wishlist
@@ -1579,9 +1278,9 @@ def add_to_wishlist():
             cursor = conn.cursor()
 
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
-        _isbn = request.form.get("isbn")
+        _isbn = request.json["isbn"]
 
         sql = "INSERT into Wishlist(customer_id, isbn) values (\"{}\",\"{}\");".format(_userid, _isbn)
         print(sql)
@@ -1590,9 +1289,9 @@ def add_to_wishlist():
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Add-to-wishlist"), 500
+        return jsonify({"Message": "Error occurred in Add-to-wishlist"}), 500
 
-    return render_template("success.html", message="Successfully added to wishlist!"), 200
+    return jsonify({"Message": "Successfully added to wishlist!"}), 200
 
 
 # Remove from wishlist
@@ -1608,9 +1307,9 @@ def remove_from_wishlist():
             cursor = conn.cursor()
 
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
-        _isbn = request.form.get("isbn")
+        _isbn = request.json["isbn"]
 
         sql = "DELETE from Wishlist where customer_id = \"{}\" and ISBN = \"{}\";".format(_userid, _isbn)
         print(sql)
@@ -1619,9 +1318,9 @@ def remove_from_wishlist():
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Remove-from-wishlist"), 500
+        return jsonify({"Message": "Error occurred in Remove-from-wishlist"}), 500
 
-    return render_template("success.html", message="Successfully removed from wishlist!"), 200
+    return jsonify({"Message": "Successfully removed from wishlist!"}), 200
 
 
 # Admin toggles visibility of a book
@@ -1637,12 +1336,12 @@ def toggle_visibility_of_book():
             cursor = conn.cursor()
             admin = cursor.execute("Select * from admin where admin_id = \"{}\";".format(_userid))
             if not bool(admin):
-                return render_template("error.html", message="Permission denied"), 403
+                return jsonify({"Message": "Permission denied"}), 403
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
-        _isbn = request.form.get("isbn")
-        _visibility = request.form.get("visibility")
+        _isbn = request.json["isbn"]
+        _visibility = request.json["visibility"]
 
         sql = "UPDATE book SET visibility = \"{}\" where ISBN = \"{}\";".format(_visibility, _isbn)
         print(sql)
@@ -1651,9 +1350,9 @@ def toggle_visibility_of_book():
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in toggling visibility-of-book"), 500
+        return jsonify({"Message": "Error occurred in toggling visibility-of-book"}), 500
 
-    return render_template("success.html", message="Successfully toggled visibility of book!"), 200
+    return jsonify({"Message": "Successfully toggled visibility of book!"}), 200
 
 
 # Rate a book
@@ -1668,15 +1367,15 @@ def rate_a_book():
             _userid = session.get("user_id")
             cursor = conn.cursor()
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
-        _isbn = request.form.get("isbn")
-        _rating = request.form.get("rating")
+        _isbn = request.json["isbn"]
+        _rating = request.json["rating"]
         _sale_order = "SELECT customer_id, ISBN from (Sale_order natural join Orders) where customer_id = \"{}\" and ISBN = \"{}\"".format(_userid, _isbn)
         _rent_order = "SELECT customer_id, ISBN from (Rent_order natural join Orders) where customer_id = \"{}\" and ISBN = \"{}\";".format(_userid, _isbn)
         ordered = cursor.execute("{} union {};".format(_sale_order, _rent_order))
         if not bool(ordered):
-            return render_template("error.html", message="Permission denied"), 403
+            return jsonify({"Message": "Permission denied"}), 403
 
         sql = "INSERT into Feedback(customer_id, ISBN, rating) values(\"{}\", \"{}\", \"{}\");".format(_userid, _isbn, _rating)
         print(sql)
@@ -1685,9 +1384,9 @@ def rate_a_book():
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Rate-a-book"), 500
+        return jsonify({"Message": "Error occurred in Rate-a-book"}), 500
 
-    return render_template("success.html", message="Successfully rated a book!"), 200
+    return jsonify({"Message": "Successfully rated a book!"}), 200
 
 
 # Add a book
@@ -1708,19 +1407,19 @@ def add_a_book():
             cursor = conn.cursor()
             vendor = cursor.execute("Select * from vendor where vendor_id = \"{}\";".format(_userid))
             if not bool(vendor):
-                return render_template("error.html", message="Permission denied"), 403
+                return jsonify({"Message": "Permission denied"}), 403
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
-        _isbn = request.form.get("isbn")
-        _title = request.form.get("title")
-        _price = request.form.get("price")
-        _cover_image = request.form.get("cover_image")
-        _page_count = request.form.get("page_count")
-        _description = request.form.get("description")
-        _publisher = request.form.get("publisher")
-        _published_date = request.form.get("published_date")
-        _authors = request.form.get("authors")
+        _isbn = request.json["isbn"]
+        _title = request.json["title"]
+        _price = request.json["price"]
+        _cover_image = request.json["cover_image"]
+        _page_count = request.json["page_count"]
+        _description = request.json["description"]
+        _publisher = request.json["publisher"]
+        _published_date = request.json["published_date"]
+        _authors = request.json["authors"]
 
         add_book = "INSERT into book(ISBN,title,price,cover_image,page_count,description,publisher,published_date, vendor_id) values(\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\", \"{}\");".format(
             _isbn, _title, _price, _cover_image, _page_count, _description, _publisher, _published_date, _userid)
@@ -1740,40 +1439,40 @@ def add_a_book():
                 book_author = "INSERT into book_author(ISBN,author_id) values(\"{}\",\"{}\");".format(_isbn, index+1)
                 cursor.execute(book_author)
 
-        _is_salebook = request.form.get("is_salebook")
-        _is_rentbook = request.form.get("is_rentbook")
-        _is_fiction = request.form.get("is_fiction")
-        _is_children = request.form.get("is_children")
-        _is_academics = request.form.get("is_academics")
+        _is_salebook = request.json["is_salebook"]
+        _is_rentbook = request.json["is_rentbook"]
+        _is_fiction = request.json["is_fiction"]
+        _is_children = request.json["is_children"]
+        _is_academics = request.json["is_academics"]
 
         if bool(_is_salebook):
-            _fixed_discount = request.form.get("fixed_discount")
-            _avail_qty = request.form.get("avail_qty")
+            _fixed_discount = request.json["fixed_discount"]
+            _avail_qty = request.json["avail_qty"]
             sale_book = "INSERT into sale_book(isbn,fixed_discount,avail_qty) values(\"{}\",\"{}\",\"{}\")".format(_isbn, _fixed_discount, _avail_qty)
             cursor.execute(sale_book)
 
         if bool(_is_rentbook):
-            _deposit = request.form.get("deposit")
-            _qty = request.form.get("qty")
-            _rental_fee = request.form.get("rental_fee")
+            _deposit = request.json["deposit"]
+            _qty = request.json["qty"]
+            _rental_fee = request.json["rental_fee"]
             rent_book = "INSERT into rent_book(isbn,deposit,qty,rental_fee) values(\"{}\",\"{}\",\"{}\",\"{}\")".format(_isbn, _deposit, _qty, _rental_fee)
             cursor.execute(rent_book)
 
         if bool(_is_fiction):
-            _genre = request.form.get("genre")
-            _intro = request.form.get("intro")
+            _genre = request.json["genre"]
+            _intro = request.json["intro"]
             fiction = "INSERT into fiction(isbn,genre,intro) values(\"{}\",\"{}\",\"{}\")".format(_isbn, _genre, _intro)
             cursor.execute(fiction)
 
         if bool(_is_children):
-            _age_group = request.form.get("age_group")
-            _main_character = request.form.get("main_character")
+            _age_group = request.json["age_group"]
+            _main_character = request.json["main_character"]
             children = "INSERT into children(isbn,age_group,main_character) values(\"{}\",\"{}\",\"{}\")".format(_isbn, _age_group, _main_character)
             cursor.execute(children)
 
         if bool(_is_academics):
-            _course = request.form.get("course")
-            _level = request.form.get("level")
+            _course = request.json["course"]
+            _level = request.json["level"]
             academics = "INSERT into academics(isbn,course,level) values(\"{}\",\"{}\",\"{}\")".format(_isbn, _course, _level)
             cursor.execute(academics)
 
@@ -1781,9 +1480,9 @@ def add_a_book():
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Add-a-book"), 500
+        return jsonify({"Message": "Error occurred in Add-a-book"}), 500
 
-    return render_template("success.html", message="Successfully added a book!"), 200
+    return jsonify({"Message": "Successfully added a book!"}), 200
 
 
 # Remove a book
@@ -1799,15 +1498,15 @@ def remove_a_book():
             cursor = conn.cursor()
             vendor = cursor.execute("Select * from vendor where vendor_id = \"{}\";".format(_userid))
             if not bool(vendor):
-                return render_template("error.html", message="Permission denied"), 403
+                return jsonify({"Message": "Permission denied"}), 403
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
-        _isbn = request.form.get("isbn")
+        _isbn = request.json["isbn"]
         book = "SELECT vendor_id, isbn from book where vendor_id = \"{}\" and isbn = \"{}\";".format(_userid, _isbn)
         cursor.execute(book)
         if not bool(book):
-            return render_template("error.html", message="Permission denied"), 403
+            return jsonify({"Message": "Permission denied"}), 403
 
         sql = "DELETE from sale_book where ISBN = \"{}\";".format(_isbn)
         cursor.execute(sql)
@@ -1819,9 +1518,9 @@ def remove_a_book():
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Remove-a-book"), 500
+        return jsonify({"Message": "Error occurred in Remove-a-book"}), 500
 
-    return render_template("success.html", message="Successfully removed a book!"), 200
+    return jsonify({"Message": "Successfully removed a book!"}), 200
 
 
 # Update book data
@@ -1839,25 +1538,25 @@ def update_book_data():
             cursor = conn.cursor()
             vendor = cursor.execute("Select * from vendor where vendor_id = \"{}\";".format(_userid))
             if not bool(vendor):
-                return render_template("error.html", message="Permission denied"), 403
+                return jsonify({"Message": "Permission denied"}), 403
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
-        _isbn = request.form.get("isbn")
-        _price = request.form.get("price")
-        _is_sale = request.form.get("is_sale")
-        _is_rent = request.form.get("is_rent")
+        _isbn = request.json["isbn"]
+        _price = request.json["price"]
+        _is_sale = request.json["is_sale"]
+        _is_rent = request.json["is_rent"]
 
         book = "SELECT vendor_id, isbn from book where vendor_id = \"{}\" and isbn = \"{}\";".format(_userid, _isbn)
         cursor.execute(book)
         if not bool(book):
-            return render_template("error.html", message="Permission denied"), 403
+            return jsonify({"Message": "Permission denied"}), 403
         update_book = "UPDATE book SET price = \"{}\" where ISBN = \"{}\";".format(_price, _isbn)
         cursor.execute(update_book)
 
         if bool(_is_sale):
-            _fixed_discount = request.form.get("fixed_discount")
-            _avail_qty = request.form.get("avail_qty")
+            _fixed_discount = request.json["fixed_discount"]
+            _avail_qty = request.json["avail_qty"]
             sale_book = cursor.execute("SELECT * from sale_book where ISBN = \"{}\";".format(_isbn))
             if bool(sale_book):
                 cursor.execute("UPDATE sale_book SET fixed_discount = \"{}\", avail_qty = \"{}\" where ISBN = \"{}\";".format(_fixed_discount, _avail_qty, _isbn))
@@ -1867,9 +1566,9 @@ def update_book_data():
             cursor.execute("DELETE from sale_book where ISBN = \"{}\";".format(_isbn))
 
         if bool(_is_rent):
-            _deposit = request.form.get("deposit")
-            _rental_fee = request.form.get("rental_fee")
-            _qty = request.form.get("qty")
+            _deposit = request.json["deposit"]
+            _rental_fee = request.json["rental_fee"]
+            _qty = request.json["qty"]
             rent_book = cursor.execute("SELECT * from rent_book where ISBN = \"{}\";".format(_isbn))
             if bool(rent_book):
                 cursor.execute("UPDATE rent_book SET deposit = \"{}\",qty = \"{}\",rental_fee = \"{}\" where ISBN = \"{}\";".format(
@@ -1884,9 +1583,9 @@ def update_book_data():
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Update-book-data"), 500
+        return jsonify({"Message": "Error occurred in Update-book-data"}), 500
 
-    return render_template("success.html", message="Successfully updated book data!"), 200
+    return jsonify({"Message": "Successfully updated book data!"}), 200
 
 
 # Vendors to approve
@@ -1901,33 +1600,25 @@ def vendors_to_approve():
             cursor = conn.cursor()
             admin = cursor.execute("Select * from admin where admin_id = \"{}\";".format(_userid))
             if not bool(admin):
-                return render_template("error.html", message="Permission denied"), 403
+                return jsonify({"Message": "Permission denied"}), 403
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
-        sql = "SELECT Name, email, phone, city, company from Vendor_to_Approve;"
+        sql = "SELECT * from Vendor_to_Approve;"
         print(sql)
         cursor.execute(sql)
         results = cursor.fetchall()
 
         if len(results) == 0:
-            return render_template("error.html", message="No vendor in waitlist for approval"), 404
-
-        variables = []
-        for row in results:
-            variables.append({
-                "Name": row[0],
-                "email": row[1],
-                "phone": row[2],
-                "city": row[3],
-                "company": row[4]
-            })
+            return jsonify({"Message": "No vendor in waitlist for approval"}), 404
+        # Form json response for query results
+        json_result = helper.get_json_response(cursor.description, results)
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Vendors-to-approve"), 500
+        return jsonify({"Message": "Error occurred in Vendors-to-approve"}), 500
 
-    return render_template("vendors_to_approve.html", variables=variables), 200
+    return jsonify(json_result), 200
 
 
 # Approve vendor
@@ -1943,12 +1634,12 @@ def approve_vendor():
             cursor = conn.cursor()
             admin = cursor.execute("Select * from admin where admin_id = \"{}\";".format(_userid))
             if not bool(admin):
-                return render_template("error.html", message="Permission denied"), 403
+                return jsonify({"Message": "Permission denied"}), 403
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
-        _username = request.form.get("username")
-        _is_approve = request.form.get("is_approve")
+        _username = request.json["username"]
+        _is_approve = request.json["is_approve"]
         cursor.execute("SELECT vendor_id from vendor where username = \"{}\";".format(_username))
         _vendor_id = cursor.fetchone()[0]
 
@@ -1966,9 +1657,9 @@ def approve_vendor():
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in approving a vendor"), 500
+        return jsonify({"Message": "Error occurred in approving a vendor"}), 500
 
-    return render_template("success.html", message="Successfully approved/disapproved a vendor!"), 200
+    return jsonify({"Message": "Successfully approved/disapproved a vendor!"}), 200
 
 
 # Place an order
@@ -1984,9 +1675,9 @@ def place_an_order():
             cursor = conn.cursor()
 
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
-        _address_id = request.form.get("address_id")
+        _address_id = request.json["address_id"]
         _date = datetime.date.today()
         print(_date)
 
@@ -2027,9 +1718,9 @@ def place_an_order():
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Add-to-cart"), 500
+        return jsonify({"Message": "Error occurred in Add-to-cart"}), 500
 
-    return render_template("success.html", message="Successfully added to cart!"), 200
+    return jsonify({"Message": "Successfully added to cart!"}), 200
 
 
 # Return Book
@@ -2045,10 +1736,10 @@ def return_book():
             cursor = conn.cursor()
 
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
-        _isbn = request.form.get("isbn")
-        _order_id = request.form.get("order_id")
+        _isbn = request.json["isbn"]
+        _order_id = request.json["order_id"]
         _date = datetime.date.today()
         print(_date)
 
@@ -2065,9 +1756,9 @@ def return_book():
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Return-book"), 500
+        return jsonify({"Message": "Error occurred in Return-book"}), 500
 
-    return render_template("success.html", message="Successfully returned book!"), 200
+    return jsonify({"Message": "Successfully returned book!"}), 200
 
 
 # Make payment
@@ -2083,9 +1774,9 @@ def make_payment():
             cursor = conn.cursor()
 
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return jsonify({"Message": "Unauthenticated"}), 401
 
-        _order_id = request.form.get("order_id")
+        _order_id = request.json["order_id"]
         _time = datetime.datetime.now()
         print(_time)
 
@@ -2097,9 +1788,9 @@ def make_payment():
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Make-payment"), 500
+        return jsonify({"Message": "Error occurred in Make-payment"}), 500
 
-    return render_template("success.html", message="Successfully paid!"), 200
+    return jsonify({"Message": "Successfully paid!"}), 200
 
 
 if __name__ == "__main__":

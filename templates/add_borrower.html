@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>library management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  </head>
+      <body>
+        {% include 'navbar.html' %}
+      </br>
+        <div class="container" text-align = "center">
+          <center><h1>Add Borrower</h1></center>
+        </br>
+            {% if submitted %}
+                your bookloan record submitted!!!
+
+            {% else %}
+              <form class="row g-3" method="POST">
+                {% csrf_token %}
+                <div class="col-md-10">
+                  <label for="inputSSN" class="form-label">SSN</label>
+                  <input type="text" class="form-control" id="inputSSN" name="inputSSN" placeholder="SSN" maxlength="9" required>
+                </div>
+                <div style="color: rgb(255, 0, 34);"><strong>{{messages}}</strong></div>
+                <div class="col-md-5">
+                  <label for="inputFname" class="form-label">First Name</label>
+                  <input type="text" class="form-control" id="inputFname" name="inputFname" placeholder="First Name" required>
+                </div>
+
+                <div class="col-md-5">
+                  <label for="inputLname" class="form-label">Last Name</label>
+                  <input type="text" class="form-control" id="inputLname" name="inputLname" placeholder="Last Name" required>
+                </div>
+
+                <div class="col-md-10">
+                  <label for="inputAddr" class="form-label">Address</label>
+                  <input type="text" class="form-control" id="inputAddr" name="inputAddr" placeholder="Street and Apt. No." required>
+                  <div class="invalid-feedback">
+                    Please provide a valid Address.
+                  </div>
+                </div>
+
+                <div class="col-md-5">
+                  <label for="inputCity" class="form-label">City</label>
+                  <input type="text" class="form-control" id="inputCity" name="inputCity" placeholder="City" required>
+                  <div class="invalid-feedback">
+                    Please provide a valid city.
+                  </div>
+                </div>
+                
+                <div class="col-md-5">
+                  <label for="inputState" class="form-label">State</label>
+                  <input type="text" class="form-control" id="inputState" name="inputState" placeholder="State" maxlength="2" required>
+                  <div class="invalid-feedback">
+                    Please provide a valid State.
+                  </div>
+                </div>
+
+                <div class="col-md-5">
+                  <label for="inputPno" class="form-label">Phone Number</label>
+                  <input type="telNo" class="form-control" id="inputPno" name="inputPno" placeholder="Phone Number" maxlength="10" required>
+                  <div class="invalid-feedback">
+                    Please provide a valid Phone Number.
+                  </div>
+                </div>
+                <div class="col-12">
+                  <input type="submit" class="btn btn-outline-secondary" value="Submit">
+                </div>
+              </form>
+            {% endif %}
+        </div>
+    </body>
+    </br>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</html>

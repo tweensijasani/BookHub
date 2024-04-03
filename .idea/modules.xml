@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../BookNookFrontEnd/.idea/BookNookFrontEnd.iml" filepath="$PROJECT_DIR$/../BookNookFrontEnd/.idea/BookNookFrontEnd.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/book_nook.iml" filepath="$PROJECT_DIR$/.idea/book_nook.iml" />
     </modules>
   </component>

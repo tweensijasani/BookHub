@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>library management</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    </head>
+    <body>  
+        {% include 'navbar.html' %}
+            <div class="container mt-5">
+                <h1 class="text-center">Fines</h1>
+                <br/>
+                <div class="row">
+                    <div class="col-md-6">
+                        <form class="d-flex flex-column" method="POST" action="{% url 'search-fines' %}">
+                            {% csrf_token %}
+                            <div class="d-flex align-items-endx">
+                                <label for="filter_on_paid" class="me-2 mb-0" style="margin-top: 7px;"><strong>Filter:</strong></label>
+                                <select class="form-select form-select-sm" name="filter_on_paid" id="filter_on_paid" style="height: 38px;">
+                                    <option value="all" {% if filter_on_paid == 'all' %}selected{% endif %}>All Fines</option>
+                                    <option value="paid" {% if filter_on_paid == 'paid' %}selected{% endif %}>Paid Fines</option>
+                                    <option value="unpaid" {% if filter_on_paid == 'unpaid' %}selected{% endif %}>Unpaid Fines</option>
+                                </select>
+                            </div>
+                        
+                    </div>
+                    <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="search" class="form-control" placeholder="Search a Card-ID" aria-label="Search" name="searchedfines">
+                                <button type="submit"  class="btn btn-outline-secondary">Search</button>
+                            </div>
+                    </div>
+                </form>
+                </div>
+            </div>
+                </br>
+                <div class="container">
+                    <form method="POST" action="{% url 'search-fines' %}">  
+                        {%csrf_token%}
+                        <table class='table table-bordered table-condensed table-hover' style="margin-left:auto ;text-align:left;">
+                            <thead class="table-light " style="margin-left:auto ;">
+                                <tr>
+                                    <th scope="col">Card ID</th>
+                                    <th scope="col">Total Fine</th>
+                                    <th scope="col">Paid</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {%for Fines in ReaultSearchedFines %}
+                                <tr class="table-light "> 
+                                        <td>{{Fines.LoanId__CardId__CardId}}</td>
+                                        <td>{{Fines.total_amount}}</td>
+                                        {% if Fines.Paid == 1 %}
+                                            <td>Paid</td>
+                                        {% else %}
+                                            <td>Unpaid</td>
+                                        {% endif %}
+                                        <td>
+                                                <button type="submit" name="select_paid" value={{Fines.LoanId__CardId__CardId}} class="btn btn-outline-success"> Paid</button>
+                                            
+                                        </td>
+                                    </tr>
+                                {%endfor%}
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+    </br>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    </body>
+</html>
