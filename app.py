@@ -22,9 +22,24 @@ Session(app)
 
 
 @app.route("/")
-def main():
+def index():
     # return "Welcome!"
-    return render_template('base.html')
+    return render_template("index.html"), 200
+
+
+@app.route('/admin_signup', methods=['GET', 'POST'])
+def admin_signup():
+    return render_template("signup_admin.html"), 200
+
+
+@app.route('/vendor_signup', methods=['GET', 'POST'])
+def vendor_signup():
+    return render_template("signup_vendor.html"), 200
+
+
+@app.route('/customer_signup', methods=['GET', 'POST'])
+def customer_signup():
+    return render_template("signup_customer.html"), 200
 
 
 # Sign-up admin
@@ -46,38 +61,40 @@ def signup_admin():
         _position = request.form.get("position")
 
         # Validate data
-        response = validation.validate_data(_name, _email, _phone, _password, _username)
-        if response[1] != 200:
-            return response
+        # response = validation.validate_data(_name, _email, _phone, _password, _username)
+        # if response[1] != 200:
+        #     return response
         if not _position:
             return render_template("error.html", message="Please enter position."), 500
-        if not validation.validate_admin_position(_position):
-            return render_template("error.html", message="Invalid position."), 500
+        # if not validation.validate_admin_position(_position):
+        #     return render_template("error.html", message="Invalid position."), 500
 
         cursor = conn.cursor()
-        sql = "INSERT into \"User\"(user_id, username, password, email, phone, Name) values (0,\"{}\",\"{}\",\"{}\",\"{}\",\"{}\");".format(
-            _username, _password, _email, _phone, _name)
+        sql = "INSERT into \"User\"(user_id, username, password, email, phone, Name) values ({},'{}','{}','{}','{}','{}');".format(
+            config.UserID, _username, _password, _email, _phone, _name)
+        config.UserID += 1
         print(sql)
         cursor.execute(sql)
         conn.commit()
-        select_sql = "Select user_id from \"User\" where username = \"{}\"".format(
-            _username)
+        select_sql = "Select user_id from \"User\" where username = '{}' and password = '{}'".format(
+            _username, _password)
         cursor.execute(select_sql)
         results = cursor.fetchall()
         # print(results)
 
         _userid = results[0][0]
-        sql = "INSERT into Admin(admin_id, admin_position) values (\"{}\",\"{}\")".format(
+        sql = "INSERT into Admin(admin_id, admin_position) values ({},'{}')".format(
             _userid, _position)
         # print(sql)
         cursor.execute(sql)
         conn.commit()
+        print("executed")
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Sign-up"), 500
+        return render_template("signup_admin.html", message="Error occurred in Sign-up"), 500
 
-    return render_template("success.html", message="Successfully registered."), 200
+    return render_template("signup_admin.html", message="Successfully registered."), 200
 
 
 # Sign-up vendor
@@ -99,38 +116,40 @@ def signup_vendor():
         _company = request.form.get("company")
 
         # Validate data
-        response = validation.validate_data(_name, _email, _phone, _password, _username)
-        if response[1] != 200:
-            return response
+        # response = validation.validate_data(_name, _email, _phone, _password, _username)
+        # if response[1] != 200:
+        #     return response
 
         cursor = conn.cursor()
-        sql = "INSERT into \"User\"(user_id, username, password, email, phone, Name) values (0,\"{}\",\"{}\",\"{}\",\"{}\",\"{}\");".format(
-            _username, _password, _email, _phone, _name)
+        sql = "INSERT into \"User\"(user_id, username, password, email, phone, Name) values ({},'{}','{}','{}','{}','{}');".format(
+            config.UserID, _username, _password, _email, _phone, _name)
+        config.UserID += 1
         print(sql)
         cursor.execute(sql)
         conn.commit()
-        select_sql = "Select user_id from \"User\" where username = \"{}\"".format(
-            _username)
+        select_sql = "Select user_id from \"User\" where username = '{}' and password = '{}'".format(
+            _username, _password)
         cursor.execute(select_sql)
         results = cursor.fetchall()
         # print(results)
 
         _userid = results[0][0]
-        sql = "INSERT into Vendor(vendor_id, city, company, admin_id) values (\"{}\", \"{}\", \"{}\", NULL)".format(
+        sql = "INSERT into Vendor(vendor_id, city, company, admin_id) values ({}, '{}', '{}', NULL)".format(
             _userid, _city, _company)
         # print(sql)
         cursor.execute(sql)
         conn.commit()
+        print("executed")
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Sign-up"), 500
+        return render_template("signup_vendor.html", message="Error occurred in Sign-up"), 500
 
-    return render_template("success.html", message="Successfully registered."), 200
+    return render_template("signup_vendor.html", message="Successfully registered."), 200
 
 
 # Sign-up customer
-@app.route('/api/customer/signup', methods=['POST'])
+@app.route('/api/customer/signup', methods=['GET', 'POST'])
 def signup_customer():
     '''
     This function registers new customer
@@ -148,25 +167,25 @@ def signup_customer():
         _account = request.form.get("bank_acc")
 
         # Validate data
-        response = validation.validate_data(_name, _email, _phone, _password, _username)
-        if response[1] != 200:
-            return response
-        if not validation.validate_account(_account):
-            return render_template("error.html", message="Invalid account number."), 500
+        # response = validation.validate_data(_name, _email, _phone, _password, _username)
+        # if response[1] != 200:
+        #     return response
+        # if not validation.validate_account(_account):
+        #     return render_template("error.html", message="Invalid account number."), 500
 
         cursor = conn.cursor()
-        sql = "INSERT into \"User\"(user_id, username, password, email, phone, Name) values (0,\"{}\",\"{}\",\"{}\",\"{}\",\"{}\");".format(
-            _username, _password, _email, _phone, _name)
-        print(sql)
+        sql = "INSERT into \"User\"(user_id, username, password, email, phone, Name) values ({},'{}','{}','{}','{}','{}');".format(
+            config.UserID, _username, _password, _email, _phone, _name)
+        config.UserID += 1
         cursor.execute(sql)
         conn.commit()
-        select_sql = "Select user_id from \"User\" where username = \"{}\"".format(
-            _username)
+        select_sql = "Select user_id from \"User\" where username = '{}' and password = '{}'".format(
+            _username, _password)
         cursor.execute(select_sql)
         results = cursor.fetchall()
 
         _userid = results[0][0]
-        sql = "INSERT into Customer(customer_id, bank_name, bank_acc) values (\"{}\", \"{}\", \"{}\")".format(
+        sql = "INSERT into Customer(customer_id, bank_name, bank_acc) values ({}, '{}', '{}')".format(
             _userid, _bank, _account)
         # print(sql)
         cursor.execute(sql)
@@ -174,9 +193,9 @@ def signup_customer():
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Sign-up"), 500
+        return render_template("signup_customer.html", message="Error occurred in Sign-up")
 
-    return render_template("success.html", message="Successfully registered."), 200
+    return render_template("signup_customer.html", message="Successfully registered.")
 
 
 # Update customer data
@@ -194,38 +213,39 @@ def update_customer():
             _name = request.form.get("name")
             _email = request.form.get("email")
             _phone = request.form.get("phone")
-            _password = request.form.get("password")
             _username = request.form.get("username")
             _bank = request.form.get("bank_name")
             _account = request.form.get("bank_acc")
 
             # Validate data
-            response = validation.validate_data(_name, _email, _phone, _password, _username)
-            if response[1] != 200:
-                return response
-            if not validation.validate_account(_account):
-                return render_template("error.html", message="Invalid account number."), 500
+            # response = validation.validate_data(_name, _email, _phone, _password, _username)
+            # if response[1] != 200:
+            #     return response
+            # if not validation.validate_account(_account):
+            #     return render_template("error.html", message="Invalid account number."), 500
 
             cursor = conn.cursor()
-            update_user_sql = "UPDATE \"User\" SET password = \"{}\", email = \"{}\", phone = \"{}\", name = \"{}\", username = \"{}\" where user_id = {} ;".format(
-                _password, _email, _phone, _name, _username, _userid)
+            update_user_sql = "UPDATE \"User\" SET email = \'{}\', phone = \'{}\', name = \'{}\', username = \'{}\' where user_id = {} ;".format(_email, _phone, _name, _username, _userid)
             cursor.execute(update_user_sql)
             conn.commit()
 
-            update_sql = "Update Customer set bank_name = \"{}\", bank_acc = \"{}\" where customer_id = {} ;".format(
+            update_sql = "Update Customer set bank_name = \'{}\', bank_acc = \'{}\' where customer_id = {} ;".format(
                 _bank, _account, _userid)
             # print(sql)
             cursor.execute(update_sql)
             conn.commit()
 
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return "Unauthenticated", 401
+            # return render_template("error.html", message="Unauthenticated"), 401
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in updating customer data"), 500
+        return "Error occurred in updating customer data", 500
+        # return render_template("error.html", message="Error occurred in updating customer data"), 500
 
-    return render_template("success.html", message="Successfully updated customer details."), 200
+    return "Successfully updated customer details!", 200
+    # return render_template("success.html", message="Successfully updated customer details."), 200
 
 
 # Update vendor data
@@ -291,16 +311,16 @@ def login_admin():
         cursor.execute(select_sql)
         results = cursor.fetchall()
         if len(results) == 0:
-            return render_template("error.html", message="User does not exist"), 404
+            return render_template("index.html", message="User does not exist"), 404
         if results[0][0] == _password:
             print("Login successful")
             session["user_id"] = results[0][1]
-            return render_template("success.html", message="Login successful"), 200
+            return render_template("home_admin.html", message="Login successful"), 200
         else:
-            return render_template("error.html", message="Invalid password"), 500
+            return render_template("index.html", message="Invalid password"), 500
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in login"), 500
+        return render_template("index.html", message="Error occurred in login"), 500
 
 
 # Vendor login
@@ -320,7 +340,7 @@ def login_vendor():
         results = cursor.fetchall()
         print(results)
         if len(results) == 0:
-            return render_template("error.html", message="User does not exist"), 404
+            return render_template("index.html", message="User does not exist"), 404
         if results[0][0] == _password:
             print("Login successful")
             session["user_id"] = results[0][1]
@@ -328,12 +348,12 @@ def login_vendor():
             if results[0][2] == None:
                 print("Vendor is not approved")
                 msg += ", vendor not approved"
-            return render_template("success.html", message=msg), 200
+            return render_template("home_vendor.html", message=msg), 200
         else:
-            return render_template("error.html", message="Invalid password"), 500
+            return render_template("index.html", message="Invalid password"), 500
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in login"), 500
+        return render_template("index.html", message="Error occurred in login"), 500
 
 
 # Customer login
@@ -354,20 +374,21 @@ def login_customer():
         cursor.execute(select_sql)
         results = cursor.fetchall()
         if len(results) == 0:
-            return render_template("error.html", message="User does not exist"), 404
+            return render_template("index.html", message="User does not exist"), 404
         if results[0][0] == _password:
             print("Login successful")
             session["user_id"] = results[0][1]
-            return render_template("success.html", message="Login successful"), 200
+            return view_all_books()
+            # return render_template("home_customer.html", message="Login successful"), 200
         else:
-            return render_template("error.html", message="Invalid password"), 500
+            return render_template("index.html", message="Invalid password"), 500
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in login"), 500
+        return render_template("index.html", message="Error occurred in login"), 500
 
 
 # Logout
-@app.route('/api/user/logout', methods=['POST'])
+@app.route('/api/user/logout', methods=['GET', 'POST'])
 def logout():
     '''
     This function logs user out of current session 
@@ -375,12 +396,12 @@ def logout():
     try:
         if session.get("user_id"):
             session["user_id"] = None
-            return render_template("success.html", message="Logged out"), 200
+            return render_template("index.html", message="Successfully Logged out!"), 200
         else:
-            return render_template("error.html", message="Error occurred in logout"), 500
+            return render_template("index.html", message="Error occurred in logout"), 500
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in logout"), 500
+        return render_template("index.html", message="Error occurred in logout"), 500
 
 
 # View vendor profile
@@ -427,31 +448,45 @@ def view_customer_profile():
         if session.get("user_id"):
             _userid = session.get("user_id")
             cursor = conn.cursor()
-            select_sql = "Select Name, email, phone, bank_name, bank_acc, street, apt, city, pin from (\"User\" join Customer C on user_id = customer_id) join Address A on C.customer_id = A.customer_id where user_id = \"{}\";".format(
+            select_sql = "Select Name, username, email, phone, bank_name, bank_acc, user_id from \"User\" join Customer C on user_id = customer_id where user_id = {};".format(
                 _userid)
             cursor.execute(select_sql)
             results = cursor.fetchall()
 
             if len(results) == 0:
-                return render_template("error.html", message="User does not exist"), 404
+                return render_template("index.html", message="User does not exist"), 404
 
             customer_profile = {
                 "name": results[0][0],
-                "email": results[0][1],
-                "phone": results[0][2],
-                "bank_name": results[0][3],
-                "bank_acc": results[0][4],
-                "street": results[0][5],
-                "apt": results[0][6],
-                "city": results[0][7],
-                "pin": results[0][8]
+                "username": results[0][1],
+                "email": results[0][2],
+                "phone": results[0][3],
+                "bank_name": results[0][4],
+                "bank_acc": results[0][5],
+                "user_id": results[0][6]
             }
-            return render_template("customer_profile.html", customer=customer_profile), 200
+
+            select_sql = "Select addr_id, street, apt, city, pin from Address where customer_id = {};".format(
+                _userid)
+            cursor.execute(select_sql)
+            results = cursor.fetchall()
+            address = []
+            for row in results:
+                addr = {
+                    "addr_id": row[0],
+                    "street": row[1],
+                    "apt": row[2],
+                    "city": row[3],
+                    "pin": row[4]
+                }
+                address.append(addr)
+
+            return render_template("profile_customer.html", customer=customer_profile, addresses=address), 200
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return render_template("index.html", message="Unauthenticated"), 401
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in view customer profile"), 500
+        return render_template("index.html", message="Error occurred in view customer profile"), 500
 
 
 # View admin profile
@@ -487,6 +522,39 @@ def view_admin_profile():
         return render_template("error.html", message="Error occurred in view admin profile"), 500
 
 
+# Change customer password
+@app.route('/api/change_password', methods=['POST'])
+def change_password():
+    '''
+    This function changes customer password
+    '''
+    try:
+        if session.get("user_id"):
+            _userid = session.get("user_id")
+            _oldpassword = request.form.get("old-password")
+            _newpassword = request.form.get("new-password")
+            cursor = conn.cursor()
+            select_sql = "Select password from \"User\" where user_id = {};".format(_userid)
+            cursor.execute(select_sql)
+            results = cursor.fetchall()
+            if len(results) == 0:
+                return "Something went wrong", 404
+                # return render_template("profile_customer.html", message="Something went wrong"), 404
+            if results[0][0] == _oldpassword:
+                select_sql = "Update \"User\" set password = \'{}\' where user_id = {};".format(_newpassword, _userid)
+                cursor.execute(select_sql)
+                conn.commit()
+                return "Password Changed Successfully!", 200
+                # return render_template("profile_customer.html", message="Password Changed Successfully!"), 200
+            else:
+                return "Invalid password", 500
+                # return render_template("profile_customer.html", message="Invalid password"), 500
+    except Exception as e:
+        print(e)
+        return "Error occurred in changing password", 500
+        # return render_template("index.html", message="Error occurred in login"), 500
+
+
 # View all books
 @app.route('/api/view/allbooks', methods=['GET'])
 def view_all_books():
@@ -497,33 +565,27 @@ def view_all_books():
         if session.get("user_id"):
             _userid = session.get("user_id")
             cursor = conn.cursor()
-            select_sql = "Select ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, Name "\
-                         "from Book_with_rating natural join book_author BA join author A on BA.author_id = A.author_id;"
+            select_sql = "Select B.ISBN, Title, Price, Cover_image, Description, Page_count, avail_qty, Avg_rating, STRING_AGG(A.Name, ', ') AS authors "\
+                         "from Book_with_rating B natural join book_author BA left join sale_book SB on B.ISBN = SB.ISBN join author A on BA.author_id = A.author_id group by B.ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, avail_qty;"
             cursor.execute(select_sql)
             results = cursor.fetchall()
 
             if len(results) == 0:
-                return render_template("error.html", message="No books available"), 404
+                return render_template("index.html", message="No books available"), 404
             # Form a list of dictionaries for query results
             books = []
             for row in results:
                 book = {
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Price": row[2],
                     "Cover_image": row[3],
-                    "Description": row[4],
-                    "Page_count": row[5],
-                    "Avg_rating": row[6],
-                    "Author": row[7]
+                    "book_data": f'{{"ISBN": "{row[0]}", "Title": "{row[1]}", "Price": "${row[2]}", "Cover_image": "{row[3]}", "Description": "{row[4]}", "Page_count": "{row[5]}", "QTY": "{row[6] if bool(row[6]) else 0}", "Avg_rating": "{row[7]}", "Author": "{row[8]}"}}'
                 }
                 books.append(book)
-            return render_template("all_books.html", books=books), 200
+            return render_template("home_customer.html", books=books), 200
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return render_template("index.html", message="Unauthenticated"), 401
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in view all books"), 500
+        return render_template("index.html", message="Error occurred in view all books"), 500
 
 
 # View sale books
@@ -618,7 +680,7 @@ def view_books_by_category():
         if session.get("user_id"):
             _userid = session.get("user_id")
             cursor = conn.cursor()
-            _category = request.json["category"]
+            _category = request.form.get('category')
             if _category.lower() == "fiction":
                 select_sql = "Select ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, genre, intro, Name " \
                              "from fiction natural join book_with_rating natural join book_author natural join author;"
@@ -784,7 +846,7 @@ def view_rent_book_vendor():
 
 
 # View customer purchase history
-@app.route('/api/view/history/purchase', methods=['GET'])
+@app.route('/api/view/history/purchase', methods=['GET', 'POST'])
 def view_purchase_history():
     '''
     This function gets purchase history for a customer
@@ -792,18 +854,19 @@ def view_purchase_history():
     try:
         if session.get("user_id"):
             _userid = session.get("user_id")
+            _order_id = request.form.get("order_id")
+            print(_order_id)
             cursor = conn.cursor()
-            select_sql = "Select title, cover_image, qty, S.price " \
+            select_sql = "Select title, cover_image, qty, S.price, S.ISBN " \
                          "from Sale_Order S join Book B on S.ISBN = B.ISBN natural join Orders " \
-                         "where order_id IN ( Select order_id from Orders Ord where Ord.customer_id = {}) " \
-                         "order by date desc;".format(_userid)
+                         "where order_id = {};".format(_order_id)
 
             print(select_sql)
             cursor.execute(select_sql)
             results = cursor.fetchall()
 
-            if len(results) == 0:
-                return render_template("error.html", message="No purchases made"), 404
+            # if len(results) == 0:
+            #     return render_template("error.html", message="No purchases made"), 404
 
             purchases = []
             for row in results:
@@ -811,15 +874,19 @@ def view_purchase_history():
                     "Title": row[0],
                     "Cover_image": row[1],
                     "Quantity": row[2],
-                    "Price": row[3]
+                    "Price": row[3],
+                    "ISBN": row[4]
                 }
                 purchases.append(purchase)
-            return render_template("purchase_history.html", purchases=purchases), 200
+            return purchases, 200
+            # return render_template("purchase_history.html", purchases=purchases), 200
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return "Unauthenticated", 401
+            # return render_template("error.html", message="Unauthenticated"), 401
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in view purchase history"), 500
+        return "Error occurred in view purchase history", 500
+        # return render_template("error.html", message="Error occurred in view purchase history"), 500
 
 
 # View customer rent history
@@ -903,7 +970,7 @@ def view_outofstock():
 
 # Admin views customer rent orders
 @app.route('/api/view/orders/rent', methods=['GET'])
-def view_order_history():
+def view_rent_order_history():
     '''
     This function gets customer rent orders based on date, customer_username or both
     Parameters : customer username, date
@@ -1085,92 +1152,128 @@ def search_book_category():
     This function search the book by the category
     '''
     try:
-        _category = request.form.get('category')
+        # _category = request.form.get('category')
         cursor = conn.cursor()
-        if _category == 'Academics':
-            select_sql = "SELECT B.ISBN, B.title, B.price, B.cover_image, B.description, B.page_count, B.publisher, B.published_date, R.Avg_rating, Author.Name, A.course, A.level FROM book B JOIN Academics A ON B.ISBN = A.ISBN JOIN Book_with_rating R ON B.ISBN = R.ISBN JOIN Book_Author BA ON B.ISBN=BA.ISBN JOIN Author ON BA.author_id=Author.author_id where B.visibility = true;"
-            cursor.execute(select_sql)
-            results = cursor.fetchall()
+        select_sql = "Select B.ISBN, Title, Price, Cover_image, Description, Page_count, avail_qty, Avg_rating, STRING_AGG(A.Name, ', ') AS authors "\
+                     "from Book_with_rating B natural join book_author BA left join sale_book SB on B.ISBN = SB.ISBN join author A on BA.author_id = A.author_id JOIN Academics AC ON B.ISBN = AC.ISBN " \
+                     "group by B.ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, avail_qty;"
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
 
-            if len(results) == 0:
-                return render_template("error.html", message="Invalid search"), 404
+        academics = []
+        for row in results:
+            academics.append({
+                "Cover_image": row[3],
+                "book_data": f'{{"ISBN": "{row[0]}", "Title": "{row[1]}", "Price": "${row[2]}", "Cover_image": "{row[3]}", "Description": "{row[4]}", "Page_count": "{row[5]}", "QTY": "{row[6] if bool(row[6]) else 0}", "Avg_rating": "{row[7]}", "Author": "{row[8]}"}}'
+            })
+        print(academics)
 
-            variables = []
-            for row in results:
-                variables.append({
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Price": row[2],
-                    "Cover Image": row[3],
-                    "Description": row[4],
-                    "Page Count": row[5],
-                    "Publisher": row[6],
-                    "Published Date": row[7],
-                    "Average Rating": row[8],
-                    "Author": row[9],
-                    "Course": row[10],
-                    "Level": row[11]
-                })
-            return render_template("book_by_category.html", variables=variables), 200
+        select_sql = "Select B.ISBN, Title, Price, Cover_image, Description, Page_count, avail_qty, Avg_rating, STRING_AGG(A.Name, ', ') AS authors "\
+                     "from Book_with_rating B natural join book_author BA left join sale_book SB on B.ISBN = SB.ISBN join author A on BA.author_id = A.author_id JOIN Fiction F ON B.ISBN = F.ISBN " \
+                     "group by B.ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, avail_qty;"
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
 
-        elif _category == 'Fiction':
-            select_sql = "SELECT B.ISBN, B.title, B.price, B.cover_image, B.description, B.page_count, B.publisher, B.published_date, R.Avg_rating, Author.Name, A.genre, A.intro FROM book B JOIN Fiction A ON B.ISBN = A.ISBN JOIN Book_with_rating R ON B.ISBN = R.ISBN JOIN Book_Author BA ON B.ISBN=BA.ISBN JOIN Author ON BA.author_id=Author.author_id where B.visibility = true;"
-            cursor.execute(select_sql)
-            results = cursor.fetchall()
+        fiction = []
+        for row in results:
+            fiction.append({
+                "Cover_image": row[3],
+                "book_data": f'{{"ISBN": "{row[0]}", "Title": "{row[1]}", "Price": "${row[2]}", "Cover_image": "{row[3]}", "Description": "{row[4]}", "Page_count": "{row[5]}", "QTY": "{row[6] if bool(row[6]) else 0}", "Avg_rating": "{row[7]}", "Author": "{row[8]}"}}'
+            })
+        print(fiction)
 
-            if len(results) == 0:
-                return render_template("error.html", message="Invalid search"), 404
+        select_sql = "Select B.ISBN, Title, Price, Cover_image, Description, Page_count, avail_qty, Avg_rating, STRING_AGG(A.Name, ', ') AS authors "\
+                     "from Book_with_rating B natural join book_author BA left join sale_book SB on B.ISBN = SB.ISBN join author A on BA.author_id = A.author_id JOIN Children C ON B.ISBN = C.ISBN " \
+                     "group by B.ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, avail_qty;"
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
 
-            variables = []
-            for row in results:
-                variables.append({
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Price": row[2],
-                    "Cover Image": row[3],
-                    "Description": row[4],
-                    "Page Count": row[5],
-                    "Publisher": row[6],
-                    "Published Date": row[7],
-                    "Average Rating": row[8],
-                    "Author": row[9],
-                    "Genre": row[10],
-                    "Intro": row[11]
-                })
-            return render_template("book_by_category.html", variables=variables), 200
+        children = []
+        for row in results:
+            children.append({
+                "Cover_image": row[3],
+                "book_data": f'{{"ISBN": "{row[0]}", "Title": "{row[1]}", "Price": "${row[2]}", "Cover_image": "{row[3]}", "Description": "{row[4]}", "Page_count": "{row[5]}", "QTY": "{row[6] if bool(row[6]) else 0}", "Avg_rating": "{row[7]}", "Author": "{row[8]}"}}'
+            })
+        print(children)
 
-        elif _category == 'Children':
-            select_sql = "SELECT B.ISBN, B.title, B.price, B.cover_image, B.description, B.page_count, B.publisher, B.published_date, R.Avg_rating, Author.Name, A.age_group, A.main_character FROM book B JOIN Children A ON B.ISBN = A.ISBN JOIN Book_with_rating R ON B.ISBN = R.ISBN JOIN Book_Author BA ON B.ISBN=BA.ISBN JOIN Author ON BA.author_id=Author.author_id where B.visibility = true;"
-            cursor.execute(select_sql)
-            results = cursor.fetchall()
-
-            if len(results) == 0:
-                return render_template("error.html", message="Invalid search"), 404
-
-            variables = []
-            for row in results:
-                variables.append({
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Price": row[2],
-                    "Cover Image": row[3],
-                    "Description": row[4],
-                    "Page Count": row[5],
-                    "Publisher": row[6],
-                    "Published Date": row[7],
-                    "Average Rating": row[8],
-                    "Author": row[9],
-                    "Age Group": row[10],
-                    "Main Character": row[11]
-                })
-            return render_template("book_by_category.html", variables=variables), 200
-
-        else:
-            return render_template("error.html", message="Invalid search"), 404
+        return render_template("search_by_category.html", academics=academics, fiction=fiction, children=children), 200
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in view vendor profile"), 500
+        return render_template("index.html", message="Error occurred in view vendor profile"), 500
+
+
+@app.route('/api/search/title', methods=['GET', 'POST'])
+def search_by_title():
+    return render_template("search_by_title.html"), 200
+
+
+@app.route('/api/search/book/title', methods=['GET', 'POST'])
+def search_book_title():
+    '''
+    This function search the book by the title
+    '''
+    try:
+        _text = request.form.get('searchedbook').lower().strip()
+        _location = request.form.get('searchBy')
+        print(_text)
+        print(_location)
+        cursor = conn.cursor()
+        if _location == 'title':
+            select_sql = "Select B.ISBN, Title, Price, Cover_image, Description, Page_count, avail_qty, Avg_rating, STRING_AGG(A.Name, ', ') AS authors "\
+                         "from Book_with_rating B natural join book_author BA left join sale_book SB on B.ISBN = SB.ISBN join author A on BA.author_id = A.author_id "\
+                         "where position('{}' in LOWER(title)) > 0 group by B.ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, avail_qty;".format(_text)
+            cursor.execute(select_sql)
+            results = cursor.fetchall()
+            print(results)
+            if len(results) == 0:
+                return "No Books Found!", 200
+
+            books = []
+            for row in results:
+                book = {
+                    "Cover_image": row[3],
+                    "ISBN": f"{row[0]}",
+                    "Title": f"{row[1]}",
+                    "Price": f"${row[2]}",
+                    "Description": f"{row[4]}",
+                    "QTY": row[6] if bool(row[6]) else 0,
+                    "Author": f"{row[8]}"
+                }
+                books.append(book)
+            print(books)
+            return books, 200
+
+        elif _location == 'description':
+            select_sql = "Select B.ISBN, Title, Price, Cover_image, Description, Page_count, avail_qty, Avg_rating, STRING_AGG(A.Name, ', ') AS authors " \
+                         "from Book_with_rating B natural join book_author BA left join sale_book SB on B.ISBN = SB.ISBN join author A on BA.author_id = A.author_id " \
+                         "where LOWER(description) LIKE '%{}%' group by B.ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, avail_qty;".format(_text)
+            cursor.execute(select_sql)
+            results = cursor.fetchall()
+
+            if len(results) == 0:
+                return "No Books Found!", 200
+
+            books = []
+            for row in results:
+                book = {
+                    "Cover_image": row[3],
+                    "ISBN": f"{row[0]}",
+                    "Title": f"{row[1]}",
+                    "Price": f"${row[2]}",
+                    "Description": f"{row[4]}",
+                    "QTY": row[6] if bool(row[6]) else 0,
+                    "Author": f"{row[8]}"
+                }
+                books.append(book)
+            return books, 200
+
+        else:
+            return "Invalid Search", 404
+
+    except Exception as e:
+        print(e)
+        return "Error occurred in search book", 500
 
 
 @app.route('/api/search/genre', methods=['GET'])
@@ -1179,89 +1282,155 @@ def search_book_genre():
     This function search the book by the genre
     '''
     try:
-        _category = request.json['category']
+        # _category = request.json['category']
         cursor = conn.cursor()
-        if _category == 'Fantasy':
-            select_sql = "SELECT B.ISBN, B.title, B.price, B.cover_image, B.page_count, B.description, B.publisher, B.published_date, A.genre, A.intro, R.Avg_rating FROM book B JOIN Fiction A ON B.ISBN = A.ISBN JOIN Book_with_rating R ON B.ISBN = R.ISBN where A.genre='Fantasy' where B.visibility = true;"
-            cursor.execute(select_sql)
-            results = cursor.fetchall()
 
-            if len(results) == 0:
-                return render_template("error.html", message="No Books Found"), 404
+        select_sql = "Select B.ISBN, Title, Price, Cover_image, Description, Page_count, avail_qty, Avg_rating, STRING_AGG(A.Name, ', ') AS authors "\
+                     "from Book_with_rating B natural join book_author BA left join sale_book SB on B.ISBN = SB.ISBN join author A on BA.author_id = A.author_id JOIN Fiction F ON B.ISBN = F.ISBN " \
+                     "where F.genre='Fantasy' group by B.ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, avail_qty;"
 
-            variables = []
-            for row in results:
-                variables.append({
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Price": row[2],
-                    "Cover Image": row[3],
-                    "Page Count": row[4],
-                    "Description": row[5],
-                    "Publisher": row[6],
-                    "Published Date": row[7],
-                    "Genre": row[8],
-                    "Intro": row[9],
-                    "Average Rating": row[10]
-                })
-            return render_template("book_by_genre.html", variables=variables), 200
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
 
-        elif _category == 'Thriller':
-            select_sql = "SELECT B.ISBN, B.title, B.price, B.cover_image, B.page_count, B.description, B.publisher, B.published_date, A.genre, A.intro, R.Avg_rating FROM book B JOIN Fiction A ON B.ISBN = A.ISBN JOIN Book_with_rating R ON B.ISBN = R.ISBN where A.genre='Thriller' where B.visibility = true;"
-            cursor.execute(select_sql)
-            results = cursor.fetchall()
+        fantasy = []
+        for row in results:
+            fantasy.append({
+                "Cover_image": row[3],
+                "book_data": f'{{"ISBN": "{row[0]}", "Title": "{row[1]}", "Price": "${row[2]}", "Cover_image": "{row[3]}", "Description": "{row[4]}", "Page_count": "{row[5]}", "QTY": "{row[6] if bool(row[6]) else 0}", "Avg_rating": "{row[7]}", "Author": "{row[8]}"}}'
+            })
+        print(fantasy)
 
-            if len(results) == 0:
-                return render_template("error.html", message="No Books Found"), 404
+        select_sql = "Select B.ISBN, Title, Price, Cover_image, Description, Page_count, avail_qty, Avg_rating, STRING_AGG(A.Name, ', ') AS authors "\
+                     "from Book_with_rating B natural join book_author BA left join sale_book SB on B.ISBN = SB.ISBN join author A on BA.author_id = A.author_id JOIN Fiction F ON B.ISBN = F.ISBN " \
+                     "where F.genre='Thriller' group by B.ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, avail_qty;"
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
 
-            variables = []
-            for row in results:
-                variables.append({
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Price": row[2],
-                    "Cover Image": row[3],
-                    "Page Count": row[4],
-                    "Description": row[5],
-                    "Publisher": row[6],
-                    "Published Date": row[7],
-                    "Genre": row[8],
-                    "Intro": row[9],
-                    "Average Rating": row[10]
-                })
-            return render_template("book_by_genre.html", variables=variables), 200
+        thriller = []
+        for row in results:
+            thriller.append({
+                "Cover_image": row[3],
+                "book_data": f'{{"ISBN": "{row[0]}", "Title": "{row[1]}", "Price": "${row[2]}", "Cover_image": "{row[3]}", "Description": "{row[4]}", "Page_count": "{row[5]}", "QTY": "{row[6] if bool(row[6]) else 0}", "Avg_rating": "{row[7]}", "Author": "{row[8]}"}}'
+            })
+        print(thriller)
 
-        elif _category == 'ScienceFiction':
-            select_sql = "SELECT B.ISBN, B.title, B.price, B.cover_image, B.page_count, B.description, B.publisher, B.published_date, A.genre, A.intro, R.Avg_rating FROM book B JOIN Fiction A ON B.ISBN = A.ISBN JOIN Book_with_rating R ON B.ISBN = R.ISBN where A.genre='ScienceFiction' where B.visibility = true;"
-            cursor.execute(select_sql)
-            results = cursor.fetchall()
+        select_sql = "Select B.ISBN, Title, Price, Cover_image, Description, Page_count, avail_qty, Avg_rating, STRING_AGG(A.Name, ', ') AS authors "\
+                     "from Book_with_rating B natural join book_author BA left join sale_book SB on B.ISBN = SB.ISBN join author A on BA.author_id = A.author_id JOIN Fiction F ON B.ISBN = F.ISBN " \
+                     "where F.genre='Science Fiction' group by B.ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, avail_qty;"
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
 
-            if len(results) == 0:
-                return render_template("error.html", message="No Books Found"), 404
+        science = []
+        for row in results:
+            science.append({
+                "Cover_image": row[3],
+                "book_data": f'{{"ISBN": "{row[0]}", "Title": "{row[1]}", "Price": "${row[2]}", "Cover_image": "{row[3]}", "Description": "{row[4]}", "Page_count": "{row[5]}", "QTY": "{row[6] if bool(row[6]) else 0}", "Avg_rating": "{row[7]}", "Author": "{row[8]}"}}'
+            })
+        print(science)
 
-            variables = []
-            for row in results:
-                variables.append({
-                    "ISBN": row[0],
-                    "Title": row[1],
-                    "Price": row[2],
-                    "Cover Image": row[3],
-                    "Page Count": row[4],
-                    "Description": row[5],
-                    "Publisher": row[6],
-                    "Published Date": row[7],
-                    "Genre": row[8],
-                    "Intro": row[9],
-                    "Average Rating": row[10]
-                })
-            return render_template("book_by_genre.html", variables=variables), 200
+        select_sql = "Select B.ISBN, Title, Price, Cover_image, Description, Page_count, avail_qty, Avg_rating, STRING_AGG(A.Name, ', ') AS authors " \
+                     "from Book_with_rating B natural join book_author BA left join sale_book SB on B.ISBN = SB.ISBN join author A on BA.author_id = A.author_id JOIN Fiction F ON B.ISBN = F.ISBN " \
+                     "where F.genre='Mystery' group by B.ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, avail_qty;"
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
 
-        else:
-            return render_template("error.html", message="Invalid search"), 404
+        mystery = []
+        for row in results:
+            mystery.append({
+                "Cover_image": row[3],
+                "book_data": f'{{"ISBN": "{row[0]}", "Title": "{row[1]}", "Price": "${row[2]}", "Cover_image": "{row[3]}", "Description": "{row[4]}", "Page_count": "{row[5]}", "QTY": "{row[6] if bool(row[6]) else 0}", "Avg_rating": "{row[7]}", "Author": "{row[8]}"}}'
+            })
+        print(mystery)
+
+        select_sql = "Select B.ISBN, Title, Price, Cover_image, Description, Page_count, avail_qty, Avg_rating, STRING_AGG(A.Name, ', ') AS authors " \
+                     "from Book_with_rating B natural join book_author BA left join sale_book SB on B.ISBN = SB.ISBN join author A on BA.author_id = A.author_id JOIN Fiction F ON B.ISBN = F.ISBN " \
+                     "where F.genre='Dystopian' group by B.ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, avail_qty;"
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
+
+        dystopian = []
+        for row in results:
+            dystopian.append({
+                "Cover_image": row[3],
+                "book_data": f'{{"ISBN": "{row[0]}", "Title": "{row[1]}", "Price": "${row[2]}", "Cover_image": "{row[3]}", "Description": "{row[4]}", "Page_count": "{row[5]}", "QTY": "{row[6] if bool(row[6]) else 0}", "Avg_rating": "{row[7]}", "Author": "{row[8]}"}}'
+            })
+        print(dystopian)
+
+        select_sql = "Select B.ISBN, Title, Price, Cover_image, Description, Page_count, avail_qty, Avg_rating, STRING_AGG(A.Name, ', ') AS authors " \
+                     "from Book_with_rating B natural join book_author BA left join sale_book SB on B.ISBN = SB.ISBN join author A on BA.author_id = A.author_id JOIN Fiction F ON B.ISBN = F.ISBN " \
+                     "where F.genre='Humor' group by B.ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, avail_qty;"
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
+
+        humor = []
+        for row in results:
+            humor.append({
+                "Cover_image": row[3],
+                "book_data": f'{{"ISBN": "{row[0]}", "Title": "{row[1]}", "Price": "${row[2]}", "Cover_image": "{row[3]}", "Description": "{row[4]}", "Page_count": "{row[5]}", "QTY": "{row[6] if bool(row[6]) else 0}", "Avg_rating": "{row[7]}", "Author": "{row[8]}"}}'
+            })
+        print(humor)
+
+        select_sql = "Select B.ISBN, Title, Price, Cover_image, Description, Page_count, avail_qty, Avg_rating, STRING_AGG(A.Name, ', ') AS authors " \
+                     "from Book_with_rating B natural join book_author BA left join sale_book SB on B.ISBN = SB.ISBN join author A on BA.author_id = A.author_id JOIN Fiction F ON B.ISBN = F.ISBN " \
+                     "where F.genre='Historical Fiction' group by B.ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, avail_qty;"
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
+
+        historical = []
+        for row in results:
+            historical.append({
+                "Cover_image": row[3],
+                "book_data": f'{{"ISBN": "{row[0]}", "Title": "{row[1]}", "Price": "${row[2]}", "Cover_image": "{row[3]}", "Description": "{row[4]}", "Page_count": "{row[5]}", "QTY": "{row[6] if bool(row[6]) else 0}", "Avg_rating": "{row[7]}", "Author": "{row[8]}"}}'
+            })
+        print(historical)
+
+        select_sql = "Select B.ISBN, Title, Price, Cover_image, Description, Page_count, avail_qty, Avg_rating, STRING_AGG(A.Name, ', ') AS authors " \
+                     "from Book_with_rating B natural join book_author BA left join sale_book SB on B.ISBN = SB.ISBN join author A on BA.author_id = A.author_id JOIN Fiction F ON B.ISBN = F.ISBN " \
+                     "where F.genre='Romance' group by B.ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, avail_qty;"
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
+
+        romance = []
+        for row in results:
+            romance.append({
+                "Cover_image": row[3],
+                "book_data": f'{{"ISBN": "{row[0]}", "Title": "{row[1]}", "Price": "${row[2]}", "Cover_image": "{row[3]}", "Description": "{row[4]}", "Page_count": "{row[5]}", "QTY": "{row[6] if bool(row[6]) else 0}", "Avg_rating": "{row[7]}", "Author": "{row[8]}"}}'
+            })
+        print(romance)
+
+        select_sql = "Select B.ISBN, Title, Price, Cover_image, Description, Page_count, avail_qty, Avg_rating, STRING_AGG(A.Name, ', ') AS authors " \
+                     "from Book_with_rating B natural join book_author BA left join sale_book SB on B.ISBN = SB.ISBN join author A on BA.author_id = A.author_id JOIN Fiction F ON B.ISBN = F.ISBN " \
+                     "where F.genre='Horror' group by B.ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, avail_qty;"
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
+
+        horror = []
+        for row in results:
+            horror.append({
+                "Cover_image": row[3],
+                "book_data": f'{{"ISBN": "{row[0]}", "Title": "{row[1]}", "Price": "${row[2]}", "Cover_image": "{row[3]}", "Description": "{row[4]}", "Page_count": "{row[5]}", "QTY": "{row[6] if bool(row[6]) else 0}", "Avg_rating": "{row[7]}", "Author": "{row[8]}"}}'
+            })
+        print(horror)
+
+        select_sql = "Select B.ISBN, Title, Price, Cover_image, Description, Page_count, avail_qty, Avg_rating, STRING_AGG(A.Name, ', ') AS authors " \
+                     "from Book_with_rating B natural join book_author BA left join sale_book SB on B.ISBN = SB.ISBN join author A on BA.author_id = A.author_id JOIN Fiction F ON B.ISBN = F.ISBN " \
+                     "where F.genre='Paranormal' group by B.ISBN, Title, Price, Cover_image, Description, Page_count, Avg_rating, avail_qty;"
+        cursor.execute(select_sql)
+        results = cursor.fetchall()
+
+        paranormal = []
+        for row in results:
+            paranormal.append({
+                "Cover_image": row[3],
+                "book_data": f'{{"ISBN": "{row[0]}", "Title": "{row[1]}", "Price": "${row[2]}", "Cover_image": "{row[3]}", "Description": "{row[4]}", "Page_count": "{row[5]}", "QTY": "{row[6] if bool(row[6]) else 0}", "Avg_rating": "{row[7]}", "Author": "{row[8]}"}}'
+            })
+        print(paranormal)
+
+        return render_template("search_by_genre.html", science=science, thriller=thriller, fantasy=fantasy, mystery=mystery, dystopian=dystopian, humor=humor, historical=historical, romance=romance, horror=horror, paranormal=paranormal), 200
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in view vendor profile"), 500
+        return render_template("index.html", message="Error occurred in search by genre"), 500
 
 
 @app.route('/api/sort/price', methods=['GET'])
@@ -1333,71 +1502,94 @@ def sort_based_rating():
 @app.route('/api/display/address', methods=['GET'])
 def display_address():
     try:
-        _userid = request.json['user_id']
-        cursor = conn.cursor()
-        select_sql = "select street, apt, city, pin from Address where customer_id={}".format(
-            _userid)
-        cursor.execute(select_sql)
-        results = cursor.fetchall()
-        if len(results) == 0:
-            return render_template("error.html", message="Invalid search"), 404
+        if session.get("user_id"):
+            _userid = session.get("user_id")
+            cursor = conn.cursor()
+            select_sql = "select addr_id, street, apt, city, pin from Address where customer_id={}".format(
+                _userid)
+            cursor.execute(select_sql)
+            results = cursor.fetchall()
+            if len(results) == 0:
+                return "No address Found", 404
+            print(results)
+            variables = []
+            for row in results:
+                variables.append({
+                    "address_id": row[0],
+                    "Street": row[1],
+                    "Apartment": row[2],
+                    "City": row[3],
+                    "Pin": row[4]
+                })
 
-        variables = []
-        for row in results:
-            variables.append({
-                "Street": row[0],
-                "Apartment": row[1],
-                "City": row[2],
-                "Pin": row[3]
-            })
-        return render_template("display_address.html", variables=variables), 200
+            return variables, 200
+        # return render_template("display_address.html", variables=variables), 200
+        else:
+            return "Unauthenticated", 401
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in display address"), 500
+        return "Error occurred in display address", 500
+        # return render_template("error.html", message="Error occurred in display address"), 500
 
 
 @app.route('/api/add/address', methods=['POST'])
 def add_address():
     try:
-        _userid = session.get("user_id")
-        _street = request.form.get("street")
-        _apt = request.form.get("apt")
-        _city = request.form.get("city")
-        _pin = request.form.get("pin")
-        cursor = conn.cursor()
-        select_sql = "select max(addr_id) from Address where customer_id = '{}'".format(_userid)
-        cursor.execute(select_sql)
-        results = cursor.fetchall()
-        val = helper.get_json_response(cursor.description, results)[
-            'Results'][0]['max(addr_id)']
-        insert_sql = "insert into Address (customer_id, addr_id, street, apt, city, pin) values ('{}', '{}', '{}', '{}', '{}', '{}')".format(
-            _userid, val+1, _street, _apt, _city, _pin)
-        cursor.execute(insert_sql)
-        conn.commit()
-        return render_template("success.html", message="Address added successfully"), 200
+        if session.get("user_id"):
+            _userid = session.get("user_id")
+            _street = request.form.get("street")
+            _apt = request.form.get("apt")
+            _city = request.form.get("city")
+            _pin = request.form.get("pin")
+            cursor = conn.cursor()
+            select_sql = "select max(addr_id) from Address where customer_id = {}".format(_userid)
+            cursor.execute(select_sql)
+            results = cursor.fetchall()
+            if bool(results[0][0]):
+            # val = helper.get_json_response(cursor.description, results)[
+            #     'Results'][0]['max(addr_id)']
+                insert_sql = "insert into Address (customer_id, addr_id, street, apt, city, pin) values ({}, {}, '{}', '{}', '{}', '{}')".format(
+                    _userid, results[0][0]+1, _street, _apt, _city, _pin)
+            else:
+                insert_sql = "insert into Address (customer_id, addr_id, street, apt, city, pin) values ({}, {}, '{}', '{}', '{}', '{}')".format(
+                    _userid, 1, _street, _apt, _city, _pin)
+            cursor.execute(insert_sql)
+            conn.commit()
+            return "Address added successfully", 200
+            # return render_template("success.html", message="Address added successfully"), 200
+        else:
+            return "Unauthenticated", 401
+            # return render_template("error.html", message="Unauthenticated"), 401
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred while adding address"), 500
+        return "Error occurred while adding address", 500
+        # return render_template("error.html", message="Error occurred while adding address"), 500
 
 
-@app.route('/api/delete/address', methods=['GET'])
+@app.route('/api/delete/address', methods=['GET', 'POST'])
 def delete_address():
     try:
-        _userid = session.get("user_id")
-        _address_id = request.form.get("address_id")
-        cursor = conn.cursor()
-        delete_sql = "delete from Address where customer_id ={} and addr_id = {}".format(
-            _userid, _address_id)
-        cursor.execute(delete_sql)
-        if cursor.rowcount == 0:
-            return render_template("error.html", message="Invalid address id"), 404
-        conn.commit()
-        return render_template("success.html", message="ddress deleted successfully"), 200
+        if session.get("user_id"):
+            _userid = session.get("user_id")
+            _address_id = request.form.get("address_id")
+            cursor = conn.cursor()
+            delete_sql = "delete from Address where customer_id = {} and addr_id = {}".format(
+                _userid, _address_id)
+            cursor.execute(delete_sql)
+            if cursor.rowcount == 0:
+                return "Invalid address id", 404
+                # return render_template("error.html", message="Invalid address id"), 404
+            conn.commit()
+            return "Address deleted successfully", 200
+            # return render_template("success.html", message="Address deleted successfully"), 200
+        else:
+            return "Unauthenticated", 401
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred while deleting address"), 500
+        return "Error occurred while deleting address", 500
+        # return render_template("error.html", message="Error occurred while deleting address"), 500
 
 
 # Add to cart
@@ -1408,42 +1600,55 @@ def add_to_cart():
     Parameters: isbn, for_rent, for_sale, qty
     '''
     try:
+        print("Inside method")
         if session.get("user_id"):
             _userid = session.get("user_id")
             cursor = conn.cursor()
 
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return render_template("index.html", message="Unauthenticated"), 401
 
         _isbn = request.form.get("isbn")
-        _for_rent = request.form.get("for_rent")
-        _for_sale = request.form.get("for_sale")
+        _isbn = _isbn.replace("ISBN: ", "")
+        # _for_rent = request.form.get("for_rent")
+        # _for_sale = request.form.get("for_sale")
         _qty = request.form.get("qty")
 
-        if (bool(_for_sale) and bool(_for_rent)) or _for_rent == _for_sale or not bool(_qty) or not bool(_isbn):
-            return render_template("error.html", message="False Inputs!"), 400
+        # if (bool(_for_sale) and bool(_for_rent)) or _for_rent == _for_sale or not bool(_qty) or not bool(_isbn):
+        #     return render_template("error.html", message="False Inputs!"), 400
 
-        if bool(_for_sale):
-            _available_qty = "SELECT avail_qty from sale_book where ISBN = \"{}\";".format(_isbn)
-            if cursor.execute(_available_qty) < _qty:
-                return render_template("error.html", message="Exceeds Available Quantity!"), 400
+        # if bool(_for_sale):
+        #     _available_qty = "SELECT avail_qty from sale_book where ISBN = \"{}\";".format(_isbn)
+        #     if cursor.execute(_available_qty) < _qty:
+        #         return render_template("error.html", message="Exceeds Available Quantity!"), 400
+        #
+        # else:
+        #     _available_qty = "SELECT qty from rent_book where ISBN = \"{}\";".format(_isbn)
+        #     if cursor.execute(_available_qty) < _qty:
+        #         return render_template("error.html", message="Exceeds Available Quantity!"), 400
 
-        else:
-            _available_qty = "SELECT qty from rent_book where ISBN = \"{}\";".format(_isbn)
-            if cursor.execute(_available_qty) < _qty:
-                return render_template("error.html", message="Exceeds Available Quantity!"), 400
+        sql = "Select * from cart where ISBN = '{}' and customer_id = {} and for_sale = 'true' and for_rent = 'false';".format(
+            _isbn, _userid)
+        cursor.execute(sql)
+        results = cursor.fetchall()
+        print(sql)
 
-        sql = "INSERT into Cart(customer_id, isbn, for_rent, for_sale, qty) values (\"{}\",\"{}\",\"{}\",\"{}\",\"{}\");".format(
-            _userid, _isbn, _for_rent, _for_sale, _qty)
+        if len(results) != 0:
+            return "Item Already in Cart", 404
+
+        sql = "INSERT into Cart(customer_id, isbn, for_rent, for_sale, qty) values ({},'{}','false','true',{});".format(
+            _userid, _isbn, _qty)
         print(sql)
         cursor.execute(sql)
         conn.commit()
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Add-to-cart"), 500
+        return "Error occurred in Add-to-cart", 500
+        # return render_template("home_customer.html", message="Error occurred in Add-to-cart"), 500
 
-    return render_template("success.html", message="Successfully added to cart!"), 200
+    return "Successfully added to cart!", 200
+    # return render_template("success.html", message="Successfully added to cart!"), 200
 
 
 # Update qty in cart
@@ -1459,37 +1664,40 @@ def update_qty_in_cart():
             cursor = conn.cursor()
 
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return "Unauthenticated", 401
+            # return render_template("error.html", message="Unauthenticated"), 401
 
         _isbn = request.form.get("isbn")
-        _for_rent = request.form.get("for_rent")
-        _for_sale = request.form.get("for_sale")
+        # _for_rent = request.form.get("for_rent")
+        # _for_sale = request.form.get("for_sale")
         _qty = request.form.get("qty")
 
-        if not bool(_qty) or not bool(_isbn):
-            return render_template("error.html", message="False Inputs!"), 400
+        # if not bool(_qty) or not bool(_isbn):
+        #     return render_template("error.html", message="False Inputs!"), 400
 
-        if bool(_for_sale):
-            _available_qty = "SELECT avail_qty from sale_book where ISBN = \"{}\";".format(_isbn)
-            if cursor.execute(_available_qty) < _qty:
-                return render_template("error.html", message="Exceeds Available Quantity!"), 400
+        # if bool(_for_sale):
+        #     _available_qty = "SELECT avail_qty from sale_book where ISBN = \"{}\";".format(_isbn)
+        #     if cursor.execute(_available_qty) < _qty:
+        #         return render_template("error.html", message="Exceeds Available Quantity!"), 400
 
-        else:
-            _available_qty = "SELECT qty from rent_book where ISBN = \"{}\";".format(_isbn)
-            if bool(cursor.execute(_available_qty)) and cursor.fetchone()[0] < _qty:
-                return render_template("error.html", message="Exceeds Available Quantity!"), 400
+        # else:
+        #     _available_qty = "SELECT qty from rent_book where ISBN = \"{}\";".format(_isbn)
+        #     if bool(cursor.execute(_available_qty)) and cursor.fetchone()[0] < _qty:
+        #         return render_template("error.html", message="Exceeds Available Quantity!"), 400
 
-        sql = "UPDATE Cart SET qty = \"{}\" where customer_id = \"{}\" and isbn = \"{}\" and for_rent = \"{}\" and for_sale = \"{}\";".format(
-            _qty, _userid, _isbn, _for_rent, _for_sale)
+        sql = "UPDATE Cart SET qty = {} where customer_id = {} and isbn = '{}' and for_rent = 'false' and for_sale = 'true';".format(
+            _qty, _userid, _isbn)
         print(sql)
         cursor.execute(sql)
         conn.commit()
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in updating quantity"), 500
+        return "Error occurred in updating quantity", 500
+        # return render_template("error.html", message="Error occurred in updating quantity"), 500
 
-    return render_template("success.html", message="Successfully updated quantity!"), 200
+    return "Successfully updated quantity!", 200
+    # return render_template("success.html", message="Successfully updated quantity!"), 200
 
 
 # Remove from cart
@@ -1505,23 +1713,31 @@ def remove_from_cart():
             cursor = conn.cursor()
 
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return "Unauthenticated", 401
+            # return render_template("cart.html", message="Unauthenticated"), 401
 
         _isbn = request.form.get("isbn")
-        _for_rent = request.form.get("for_rent")
-        _for_sale = request.form.get("for_sale")
+        # _for_rent = request.form.get("for_rent")
+        # _for_sale = request.form.get("for_sale")
 
-        sql = "DELETE from Cart where customer_id = \"{}\" and ISBN = \"{}\" and for_rent = \"{}\" and for_sale = \"{}\";".format(
-            _userid, _isbn, _for_rent, _for_sale)
+        sql = "DELETE from Cart where customer_id = {} and ISBN = '{}' and for_rent = 'false' and for_sale = 'true';".format(
+            _userid, _isbn)
         print(sql)
         cursor.execute(sql)
         conn.commit()
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Remove-from-cart"), 500
+        return "Error occurred in Remove-from-cart", 500
+        # return render_template("cart.html", message="Error occurred in Remove-from-cart"), 500
 
-    return render_template("success.html", message="Successfully removed from cart!"), 200
+    return "Successfully removed from cart!", 200
+    # return render_template("cart.html", message="Successfully removed from cart!"), 200
+
+
+@app.route('/api/cart', methods=['GET', 'POST'])
+def cart():
+    return render_template("cart.html"), 200
 
 
 # View cart
@@ -1535,17 +1751,17 @@ def view_cart():
             _userid = session.get("user_id")
             cursor = conn.cursor()
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return render_template("index.html", message="Unauthenticated"), 401
 
-        _sale_books = "Select ISBN, title, cover_image, for_rent, for_sale, qty, price*qty*((100-fixed_discount)/100) as amount from ((cart natural join book) natural join sale_book) where customer_id = \"{}\" and for_rent = 0".format(_userid)
-        _rent_books = "Select ISBN, title, cover_image, for_rent, for_sale, qty, ((price*0.30)+deposit)*qty as amount from ((cart natural join book) natural join rent_book) where customer_id = \"{}\" and for_sale = 0;".format(_userid)
-        sql = "{} union {}".format(_sale_books, _rent_books)
-        print(sql)
-        cursor.execute(sql)
+        _sale_books = "Select ISBN, title, cover_image, price, qty, price*qty, avail_qty as amount from ((cart natural join book) natural join sale_book) where customer_id = {} and for_rent = false".format(_userid)
+        # _rent_books = "Select ISBN, title, cover_image, for_rent, for_sale, qty, ((price*0.30)+deposit)*qty as amount from ((cart natural join book) natural join rent_book) where customer_id = \"{}\" and for_sale = 0;".format(_userid)
+        # sql = "{} union {}".format(_sale_books, _rent_books)
+        print(_sale_books)
+        cursor.execute(_sale_books)
         results = cursor.fetchall()
 
         if len(results) == 0:
-            return render_template("error.html", message="No item in cart"), 404
+            return render_template("cart.html", message="No item in cart"), 200
 
         variables = []
         for row in results:
@@ -1553,17 +1769,17 @@ def view_cart():
                 "ISBN": row[0],
                 "Title": row[1],
                 "Cover Image": row[2],
-                "For Rent": row[3],
-                "For Sale": row[4],
-                "QTY": row[5],
-                "Amount": row[6]
+                "Price": row[3],
+                "QTY": row[4],
+                "Amount": row[5],
+                "Available": row[6]
             })
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in View-cart"), 500
+        return render_template("cart.html", message="Error occurred in View-cart"), 500
 
-    return render_template("view_cart.html", variables=variables), 200
+    return render_template("cart.html", variables=variables), 200
 
 
 # Add to wishlist
@@ -1984,52 +2200,96 @@ def place_an_order():
             cursor = conn.cursor()
 
         else:
-            return render_template("error.html", message="Unauthenticated"), 401
+            return "Unauthenticated", 401
+            # return render_template("error.html", message="Unauthenticated"), 401
 
         _address_id = request.form.get("address_id")
+        _total = request.form.get("total")
+        print(_total)
         _date = datetime.date.today()
         print(_date)
 
-        create_order = "INSERT into orders(customer_id,date,status,address_id) values(\"{}\",\"{}\",\"Ordered\",\"{}\");".format(
-            _userid, _date, _address_id)
+        create_order = "INSERT into orders(customer_id,date,status,invoice_amount,address_id) values({},'{}','Ordered',{},{});".format(
+            _userid, _date, _total, _address_id)
         cursor.execute(create_order)
-        cursor.execute("SELECT LAST_INSERT_ID();")
+        print(create_order)
+        cursor.execute("SELECT max(order_id) from orders;")
         _order_id = cursor.fetchone()[0]
+        print(_order_id)
 
-        cursor.execute("SELECT cart.ISBN, cart.qty, ((price*0.30)+deposit)*cart.qty, rent_book.qty from ((cart join rent_book on cart.ISBN = rent_book.ISBN) join book on cart.ISBN = book.ISBN) where customer_id = \"{}\" and for_sale = 0;".format(_userid))
-        _rent_books = cursor.fetchall()
-        print(_rent_books)
+        # cursor.execute("SELECT cart.ISBN, cart.qty, ((price*0.30)+deposit)*cart.qty, rent_book.qty from ((cart join rent_book on cart.ISBN = rent_book.ISBN) join book on cart.ISBN = book.ISBN) where customer_id = \"{}\" and for_sale = 0;".format(_userid))
+        # _rent_books = cursor.fetchall()
+        # print(_rent_books)
 
-        _due_date = _date + datetime.timedelta(days=14)
-        for item in _rent_books:
-            cursor.execute("INSERT into rent_order(order_id,ISBN,issue_date,due_date,qty,rent_fee) values(\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\")".format(
-                _order_id, item[0], _date, _due_date, item[1], item[2]))
-            cursor.execute("UPDATE rent_book SET qty = \"{}\" where ISBN = \"{}\";".format(item[3]-item[1], item[0]))
+        # _due_date = _date + datetime.timedelta(days=14)
+        # for item in _rent_books:
+        #     cursor.execute("INSERT into rent_order(order_id,ISBN,issue_date,due_date,qty,rent_fee) values(\"{}\",\"{}\",\"{}\",\"{}\",\"{}\",\"{}\")".format(
+        #         _order_id, item[0], _date, _due_date, item[1], item[2]))
+        #     cursor.execute("UPDATE rent_book SET qty = \"{}\" where ISBN = \"{}\";".format(item[3]-item[1], item[0]))
 
-        cursor.execute("SELECT ISBN, qty, price*qty*((100-fixed_discount)/100), avail_qty from ((cart natural join book) natural join sale_book)  where customer_id = \"{}\" and for_rent = 0;".format(_userid))
+        cursor.execute("SELECT ISBN, qty, price*qty, avail_qty from ((cart natural join book) natural join sale_book)  where customer_id = {} and for_rent = 'false' and for_sale = 'true';".format(_userid))
         _sale_books = cursor.fetchall()
         print(_sale_books)
 
         for item in _sale_books:
-            cursor.execute("INSERT into sale_order(order_id,ISBN,qty,price) values(\"{}\",\"{}\",\"{}\",\"{}\");".format(
+            cursor.execute("INSERT into sale_order(order_id,ISBN,qty,price) values({},'{}',{},{});".format(
                 _order_id, item[0], item[1], item[2]))
-            cursor.execute("UPDATE sale_book SET avail_qty = \"{}\" where ISBN = \"{}\";".format(item[3]-item[1], item[0]))
+            cursor.execute("UPDATE sale_book SET avail_qty = {} where ISBN = '{}';".format(item[3]-item[1], item[0]))
 
-        cursor.execute("DELETE from cart where customer_id = \"{}\";".format(_userid))
+        cursor.execute("DELETE from cart where customer_id = {};".format(_userid))
 
-        cursor.execute("SELECT sum(rent_fee) from rent_order where order_id = \"{}\" group by order_id;".format(_order_id))
-        _total_rent_fee = cursor.fetchone()[0]
-        cursor.execute("SELECT sum(price) from sale_order where order_id = \"{}\" group by order_id;".format(_order_id))
-        _total_price = cursor.fetchone()[0]
-        _invoice_ammount = _total_rent_fee + _total_price
-        cursor.execute("UPDATE orders SET invoice_amount = \"{}\" where order_id = \"{}\";".format(_invoice_ammount,_order_id))
+        # cursor.execute("SELECT sum(rent_fee) from rent_order where order_id = \"{}\" group by order_id;".format(_order_id))
+        # _total_rent_fee = cursor.fetchone()[0]
+        # cursor.execute("SELECT sum(price) from sale_order where order_id = \"{}\" group by order_id;".format(_order_id))
+        # _total_price = cursor.fetchone()[0]
+        # _invoice_ammount = _total_rent_fee + _total_price
+        # cursor.execute("UPDATE orders SET invoice_amount = \"{}\" where order_id = \"{}\";".format(_invoice_ammount,_order_id))
         conn.commit()
 
     except Exception as e:
         print(e)
-        return render_template("error.html", message="Error occurred in Add-to-cart"), 500
+        return "Error occurred in Add-to-cart", 500
+        # return render_template("error.html", message="Error occurred in Add-to-cart"), 500
 
-    return render_template("success.html", message="Successfully added to cart!"), 200
+    return "Successfully added to cart!", 200
+    # return render_template("success.html", message="Successfully added to cart!"), 200
+
+
+# Customer Order History
+@app.route('/api/customer/order_history', methods=['GET', 'POST'])
+def order_history():
+    try:
+        if session.get("user_id"):
+            _userid = session.get("user_id")
+            cursor = conn.cursor()
+            select_sql = "Select order_id, date, status, invoice_amount, street, apt, city, pin " \
+                         "from orders O join address A on O.customer_id = A.customer_id and A.addr_id = O.address_id " \
+                         "where O.customer_id={} " \
+                         "order by date desc;".format(_userid)
+
+            print(select_sql)
+            cursor.execute(select_sql)
+            results = cursor.fetchall()
+
+            if len(results) == 0:
+                return render_template("order_history.html", orders=[]), 200
+
+            orders = []
+            for row in results:
+                order = {
+                    "order_id": row[0],
+                    "date": row[1],
+                    "status": row[2],
+                    "invoice_amount": row[3],
+                    "address": f"{row[5]} - {row[4]}, {row[6]}, {row[7]}"
+                }
+                orders.append(order)
+            return render_template("order_history.html", orders=orders), 200
+        else:
+            return render_template("index.html", message="Unauthenticated"), 401
+    except Exception as e:
+        print(e)
+        return render_template("index.html", message="Error occurred in view order history"), 500
 
 
 # Return Book

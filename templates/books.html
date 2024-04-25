@@ -1,0 +1,57 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+        <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+        <title>Books for free</title>
+    </head>
+    <body>
+        <div class = "head" data-aos = "fade-down" data-aos-duration = "700">
+            <h1>Find all the books that you need!!</h1>
+            <!--<br><i><small>No pain, No gain</small></i>-->
+        </div><br>
+<!--        <div class="search" data-aos = "fade-right" data-aos-duration = "700" >-->
+<!--            <input type = "text" placeholder = "      Search....." id="searchbar" class = "round" position = "fixed" >-->
+<!--        </div>-->
+<!--        <div id = "searchpanel" class = "searchpanel"></div> -->
+        <div class = "subjects" data-aos = "fade-up" data-aos-duration = "700" style="width:1100px">
+            <p class = "tbnames" id = "maths">MATHS</p>
+            <p id = "mathBooks">
+                {%for book in books %}
+
+                <img class = "img-container" src = "{{ book.Cover_image }}" >
+<!--                {{ book.Title }}-->
+                {% endfor %}
+<!--                <a href="books/Maths/epdf.pub_fundamentals-of-applied-probability-and-random-pro.pdf">-->
+<!--                    <img class = "img-container" src = "images/Maths/fundprob.jpg" >-->
+<!--                </a>-->
+<!--                <a href="books/Maths/Probability-and-Random-Processes-for-Engineers.pdf">-->
+<!--                    <img class = "img-container" src = "images/Maths/probrand.jpg" >-->
+<!--                </a>-->
+<!--                <a href="books/Maths/probability_and_statistics_for_engineers_and_scientisst_walpole(1).pdf">-->
+<!--                    <img class = "img-container" src = "images/Maths/probstats.jpg">-->
+<!--                </a> -->
+            </p>
+        </div><br>
+        <div class = "subjects" data-aos = "fade-up" data-aos-duration = "700">
+            <p class = "tbnames">OS</p>
+            <p id = "osBooks">
+                <a href = "books/os/Abraham-Silberschatz-Operating-System-Concepts---9th2012.12.pdf">
+                    <img class = "img-container" src = "images/os/AbrahamOS.jpg">
+                </a>
+                <a href = "books/os/Operating System Concepts.pdf">
+                    <img class = "img-container" src = "images/os/OSconcepts.jpg">
+                </a>
+        </div><br>
+        <div class = "subjects" data-aos = "fade-up" data-aos-duration = "700">
+            <p class = "tbnames">DATA STRUCTURES</p>
+            <p id = "dsBooks">
+                <a href = "books/DS/CLRIntroduction_to_Algorithms__Third_Edition.pdf">
+                    <img class = "img-container" src = "images/ds/ds.jpg">
+                </a>
+            </p>
+        </div>
+        <script src="books.js"></script>
+        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+        <script>AOS.init();</script>
+    </body>
+</html>

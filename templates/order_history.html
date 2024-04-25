@@ -1,0 +1,236 @@
+{% extends "navbar_customer.html" %}
+
+{% block content %}
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        margin-top: 100px;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    th {
+        background-color: #f2f2f2;
+        align-text: center;
+    }
+    tr:hover {
+        background-color: #f9f9f9;
+    }
+    .no-orders {
+        text-align: center;
+        color: #999;
+    }
+    .view-order-btn {
+        padding: 5px 10px;
+        background-color: #337ab7;
+        color: #fff;
+        border-color: #2e6da4;
+        border-radius: 3px;
+        cursor: pointer;
+        width: 100px;
+        height: 40px;
+    }
+    .view-order-btn:hover {
+        background-color: #286090;
+        border-color: #204d74;
+    }
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 600px;
+        border-radius: 10px;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    /* Table styles */
+    .book-details-table {
+        width: 100%;
+    }
+
+    .book-details-table th,
+    .book-details-table td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .book-details-table th {
+        background-color: #f2f2f2;
+    }
+</style>
+<div class="container">
+    <h1>Order History</h1>
+    {% if orders %}
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 90px;">Order ID</th>
+                    <th style="width: 110px;">Date</th>
+                    <th style="width: 80px;">Status</th>
+                    <th style="width: 150px;">Invoice Amount</th>
+                    <th style="width: 250px;">Address</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td>{{ order.order_id }}</td>
+                        <td>{{ order.date }}</td>
+                        <td>{{ order.status }}</td>
+                        <td>${{ order.invoice_amount }}</td>
+                        <td>{{ order.address }}</td>
+                        <td><button class="view-order-btn" data-order-id="{{ order.order_id }}">View Order</button></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <!-- The Modal -->
+        <div id="myModal" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <span id="closeModal" class="close">&times;</span>
+                <div id="modalContent"></div>
+            </div>
+        </div>
+    {% else %}
+        <p class="no-orders">No orders yet!</p>
+    {% endif %}
+</div>
+<script>
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const viewOrderButtons = document.querySelectorAll('.view-order-btn');
+        const modal = document.getElementById('myModal');
+        const modalContent = document.getElementById('modalContent');
+        const closeModal = document.getElementById('closeModal');
+
+        viewOrderButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                const orderId = button.dataset.orderId;
+                console.log(orderId);
+                fetch('/api/view/history/purchase', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({
+                      'order_id': orderId
+                    })
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            alert('Failed to fetch book details');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Display book details on the modal
+                        modalContent.innerHTML = ''; // Clear existing details
+
+                        const table = document.createElement('table');
+                        table.classList.add('book-details-table');
+
+                        // Add table header
+                        const headerRow = document.createElement('tr');
+                        headerRow.innerHTML = `
+                            <th>Cover Image</th>
+                            <th>Title</th>
+                            <th>ISBN</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                        `;
+                        table.appendChild(headerRow);
+
+                        // Add table rows for each book
+                        data.forEach(book => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td><img src="${book.Cover_image}" style="max-width: 70px; max-height: 100px;"></td>
+                                <td><strong>${book.Title}</strong></td>
+                                <td>${book.ISBN}</td>
+                                <td>${book.Quantity}</td>
+                                <td><strong>$${book.Price}</strong></td>
+                            `;
+                            table.appendChild(row);
+                        });
+
+                        modalContent.appendChild(table);
+
+                        // Show the modal
+                        modal.style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        alert('Failed to fetch book details');
+                    });
+            });
+        });
+
+        closeModal.addEventListener('click', function() {
+            // Close the modal
+            modal.style.display = 'none';
+        });
+
+        window.addEventListener('click', function(event) {
+            // Close the modal when clicking outside of it
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    });
+
+</script>
+
+{% endblock %}

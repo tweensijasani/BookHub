@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<div class = "subjects" data-aos = "flip-up" data-aos-duration="700">
+<h2><font color="Black">BookHub</font></h2>
+<div class = "button1">
+<button onclick="document.getElementById('id01').style.display='block'" style="width:auto;">Login</button></div></div>
+
+<div id="id01" class="modal">
+
+  <form class="modal-content animate" action="login" method="post">
+    <div class="imgcontainer">
+      <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">&times;</span>
+    </div>
+
+    <div class="container">
+      <label><b>Username</b></label>
+      <input type="text" placeholder="Enter Username" name="username" required>
+
+      <label><b>Password</b></label>
+      <input type="password" placeholder="Enter Password" name="password" required>
+
+      <!-- Tab links -->
+      <div class="tab">
+        <button class="tablinks" onclick="openTab(event, 'customer')">Customer</button>
+        <button class="tablinks" onclick="openTab(event, 'vendor')">Vendor</button>
+        <button class="tablinks" onclick="openTab(event, 'admin')">Admin</button>
+      </div>
+
+      <!-- Tab content -->
+      <div id="customer" class="tabcontent">
+        <!-- Customer login form -->
+        <button type="submit" name="login_type" value="customer">Login as Customer</button>
+      </div>
+
+      <div id="vendor" class="tabcontent">
+        <!-- Vendor login form -->
+        <button type="submit" name="login_type" value="vendor">Login as Vendor</button>
+      </div>
+
+      <div id="admin" class="tabcontent">
+        <!-- Admin login form -->
+        <button type="submit" name="login_type" value="admin">Login as Admin</button>
+      </div>
+    </div>
+
+    <div class="container" style="background-color:#f1f1f1">
+      <button type="button" onclick="document.getElementById('id01').style.display='none'" class="cancelbtn">Cancel</button>
+      <span class="psw">Forgot <a href="#">password?</a></span>
+    </div>
+  </form>
+</div>
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init();
+</script>
+<script>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+</script>
+
+</body>
+</html>
